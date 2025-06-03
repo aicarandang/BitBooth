@@ -1,0 +1,150 @@
+.design-strip-page {
+  min-height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #b3e0ff 0%, #e0f7fa 100%);
+  overflow: hidden;
+}
+
+.design-strip-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 1100px;
+  gap: 64px;
+}
+
+.design-strip-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.design-strip-strip-frame {
+  width: var(--strip-width);
+  height: var(--strip-height);
+  background: var(--frame-color, #fff);
+  position: relative;
+  border: 5px solid #222;
+  box-shadow: 12px 12px 0 #222;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.design-strip-strip-frame-top {
+  height: var(--top-margin);
+  width: 100%;
+}
+
+.design-strip-strip-frame-grid-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex: none;
+}
+
+.design-strip-strip-frame-grid {
+  display: grid;
+  grid-template-rows: repeat(var(--grid-rows), 1fr);
+  grid-template-columns: repeat(var(--grid-cols), 1fr);
+  gap: var(--grid-gap);
+  width: calc(var(--grid-cols) * var(--photo-width) + (var(--grid-cols) - 1) * var(--grid-gap));
+  height: calc(var(--grid-rows) * var(--photo-height) + (var(--grid-rows) - 1) * var(--grid-gap));
+}
+
+.design-strip-strip-frame-grid-item {
+  background: #d0e3f0;
+  border: 2px solid #333;
+  border-radius: 4px;
+  width: var(--photo-width);
+  height: var(--photo-height);
+  overflow: hidden;
+}
+
+.design-strip-strip-frame-grid-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.design-strip-strip-frame-grid-item-placeholder {
+  color: #888;
+  font-size: 18px;
+}
+
+.design-strip-strip-frame-footer {
+  width: 100%;
+  height: var(--footer-height);
+  background: var(--frame-color, #fff);
+}
+
+.design-strip-color-pickers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  margin-top: 24px;
+}
+
+.pixel-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.5rem;
+  color: #222;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.pixel-btn {
+  background: #fffbe6;
+  color: #222;
+  border: 4px solid #333;
+  box-shadow: 4px 4px 0 #222;
+  border-radius: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  padding: 0.5em 1.5em;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.pixel-btn:hover {
+  background: #ffe066;
+}
+
+.design-pixel-border {
+  border: 4px solid #333;
+  box-shadow: 4px 4px 0 #222;
+  border-radius: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-block;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.design-pixel-border.selected {
+  border-color: #e63946 !important;
+}
+
+.pixel-border-container {
+  display: grid;
+  grid-template-columns: repeat(6, 36px);
+  gap: 8px;
+  justify-content: center;
+}
+
+.design-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
