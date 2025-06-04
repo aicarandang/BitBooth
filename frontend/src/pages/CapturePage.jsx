@@ -2,44 +2,41 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Capture.css";
 
-const SCALE = 0.85;
-const PREVIEW_HEIGHT = 110 * SCALE;
-const PREVIEW_WIDTH = PREVIEW_HEIGHT * 1.3;
-
-const PREVIEW_LAYOUTS = {
-  '3x1': { rows: 1, cols: 3 },
-  '3x2': { rows: 2, cols: 3 },
-  '4x1': { rows: 1, cols: 4 },
-  '4x2': { rows: 2, cols: 4 },
+const STRIP_SCALE = 0.93;
+const STRIP_DIMENSIONS = {
+  '3x1': { height: 670 * STRIP_SCALE, width: 270 * STRIP_SCALE, photoH: 180 * STRIP_SCALE, photoW: 240 * STRIP_SCALE, rows: 3, cols: 1, footer: 80 * STRIP_SCALE, top: 30 * STRIP_SCALE, gap: 12 * STRIP_SCALE },
+  '3x2': { height: 670 * STRIP_SCALE, width: 350 * STRIP_SCALE, photoH: 180 * STRIP_SCALE, photoW: 158.49 * STRIP_SCALE, rows: 3, cols: 2, footer: 80 * STRIP_SCALE, top: 30 * STRIP_SCALE, gap: 12 * STRIP_SCALE },
+  '4x1': { height: 670 * STRIP_SCALE, width: 270 * STRIP_SCALE, photoH: 132.6 * STRIP_SCALE, photoW: 234.78 * STRIP_SCALE, rows: 4, cols: 1, footer: 80 * STRIP_SCALE, top: 30 * STRIP_SCALE, gap: 12 * STRIP_SCALE },
+  '4x2': { height: 670 * STRIP_SCALE, width: 350 * STRIP_SCALE, photoH: 132.6 * STRIP_SCALE, photoW: 159.54 * STRIP_SCALE, rows: 4, cols: 2, footer: 80 * STRIP_SCALE, top: 30 * STRIP_SCALE, gap: 12 * STRIP_SCALE },
 };
 
 function getTemplateKey() {
   return localStorage.getItem("stripSize") || '3x1';
 }
+
 function getTemplate() {
   const key = getTemplateKey();
-  const rows = parseInt(localStorage.getItem("stripRows"), 10) || 3;
-  const cols = parseInt(localStorage.getItem("stripCols"), 10) || 1;
-  return { key, rows, cols };
+  return STRIP_DIMENSIONS[key] || STRIP_DIMENSIONS['3x1'];
 }
-
-const PREVIEW_SIZE = 110 * SCALE;
-const PREVIEW_GAP = 16 * SCALE;
 
 const CapturePage = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const stripPreviewRef = useRef(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [photos, setPhotos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [sessionStarted, setSessionStarted] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [countdown, setCountdown] = useState(null);
+  const [isCapturing, setIsCapturing] = useState(false);
   const navigate = useNavigate();
-  const { key, rows, cols } = getTemplate();
-  const previewLayout = PREVIEW_LAYOUTS[key] || { rows: 1, cols: Math.max(rows, cols) };
-  const photoCount = rows * cols;
+
+  const tpl = getTemplate();
+  const photoCount = tpl.rows * tpl.cols;
 
   useEffect(() => {
     setPhotos(Array(photoCount).fill(null));
+
     const enableCamera = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -51,22 +48,58 @@ const CapturePage = () => {
       }
     };
     enableCamera();
+
     return () => {
       if (videoRef.current?.srcObject) {
         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
-  }, []);
+  }, [photoCount]);
 
-  // Capture photo
-  const handleCapture = () => {
+  useEffect(() => {
+    if (!stripPreviewRef.current) return;
+    const el = stripPreviewRef.current.style;
+
+    el.setProperty('--strip-width', `${tpl.width}px`);
+    el.setProperty('--strip-height', `${tpl.height}px`);
+    el.setProperty('--photo-width', `${tpl.photoW}px`);
+    el.setProperty('--photo-height', `${tpl.photoH}px`);
+    el.setProperty('--grid-gap', `${tpl.gap}px`);
+    el.setProperty('--grid-rows', tpl.rows);
+    el.setProperty('--grid-cols', tpl.cols);
+    el.setProperty('--footer-height', `${tpl.footer}px`);
+    el.setProperty('--top-margin', `${tpl.top}px`);
+    el.setProperty('--frame-color', '#fff');
+  }, [tpl]);
+
+  const doCapture = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (video && canvas) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      const inputWidth = video.videoWidth;
+      const inputHeight = video.videoHeight;
+      const targetAspect = 4 / 2.5;
+      let cropWidth = inputWidth;
+      let cropHeight = cropWidth / targetAspect;
+
+      if (cropHeight > inputHeight) {
+        cropHeight = inputHeight;
+        cropWidth = cropHeight * targetAspect;
+      }
+
+      const offsetX = (inputWidth - cropWidth) / 2;
+      const offsetY = (inputHeight - cropHeight) / 2;
+
+      canvas.width = cropWidth;
+      canvas.height = cropHeight;
+
       const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(cropWidth, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, offsetX, offsetY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+      ctx.restore();
+
       const dataUrl = canvas.toDataURL("image/png");
       setPhotos((prev) => {
         const updated = [...prev];
@@ -77,107 +110,142 @@ const CapturePage = () => {
     }
   };
 
-  // Reset all photos
+  const handleCapture = async () => {
+    if (isCapturing || currentIndex >= photoCount) return;
+    setIsCapturing(true);
+
+    if (timer > 0) {
+      let count = timer;
+      setCountdown(count);
+      const interval = setInterval(() => {
+        count -= 1;
+        setCountdown(count);
+        if (count <= 0) {
+          clearInterval(interval);
+          setCountdown(null);
+          doCapture();
+          setIsCapturing(false);
+        }
+      }, 1000);
+    } else {
+      doCapture();
+      setIsCapturing(false);
+    }
+  };
+
   const handleReset = () => {
     setPhotos(Array(photoCount).fill(null));
     setCurrentIndex(0);
+    setCountdown(null);
+    setIsCapturing(false);
   };
 
-  // Proceed to design page
   const handleNext = () => {
     localStorage.setItem("capturedPhotos", JSON.stringify(photos));
     navigate("/design");
   };
 
-  // Photo preview
-  const previewGrid = [];
-  let idx = 0;
-  for (let r = 0; r < previewLayout.rows; r++) {
-    const row = [];
-    for (let c = 0; c < previewLayout.cols; c++) {
-      if (idx >= photoCount) break;
-      row.push(
-        <div
-          key={idx}
-          className={["capture-pixel-border", "preview-photo", photos[idx] && "preview-photo-hasimg"].filter(Boolean).join(" ")}
-          style={{
-            '--preview-width': `${PREVIEW_WIDTH}px`,
-            '--preview-height': `${PREVIEW_HEIGHT}px`,
-            '--preview-gap': `${PREVIEW_GAP}px`,
-            background: photos[idx] ? `url(${photos[idx]}) center/cover` : undefined,
-            cursor: sessionStarted && photos[idx] ? 'pointer' : 'default',
-          }}
-          title={photos[idx] && sessionStarted ? "Photo taken" : undefined}
-        >
-          {photos[idx] ? (
-            <img src={photos[idx]} alt={`photo-${idx + 1}`} className="preview-photo-img" key={photos[idx]} />
-          ) : (
-            <span className="preview-photo-empty">Empty</span>
-          )}
+  const stripPreview = (
+    <div className="strip-preview" ref={stripPreviewRef}>
+      <div className="strip-preview-grid-container">
+        <div className="strip-preview-grid">
+          {Array.from({ length: photoCount }).map((_, idx) => (
+            <div
+              key={idx}
+              className={[
+                "strip-preview-photo",
+                photos[idx] && "strip-preview-photo-hasimg",
+                idx === currentIndex ? "strip-preview-photo-active" : "",
+                "strip-preview-photo-clickable"
+              ].filter(Boolean).join(" ")}
+              onClick={() => setCurrentIndex(idx)}
+              title={photos[idx] ? "Retake this photo" : "Take this photo"}
+              style={{ cursor: "pointer" }}
+            >
+              {photos[idx] ? (
+                <img
+                  src={photos[idx]}
+                  alt={`photo-${idx + 1}`}
+                  className="strip-preview-photo-img"
+                  key={photos[idx]}
+                />
+              ) : (
+                <span className="strip-preview-photo-empty">No Photo</span>
+              )}
+            </div>
+          ))}
         </div>
-      );
-      idx++;
-    }
-    if (row.length > 0) previewGrid.push(<div key={r} className="preview-row">{row}</div>);
-  }
+      </div>
+    </div>
+  );
 
   return (
     <div className="capture-bg">
       <div className="capture-container">
-        <div className="pixel-title capture-title">Camera Preview</div>
-        {permissionDenied ? (
-          <p className="text-red-500">Camera access denied. Please enable it in browser settings.</p>
-        ) : (
-          <>
-            <div className="pixel-border camera-preview">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="camera-video"
-              />
-              <canvas ref={canvasRef} style={{ display: "none" }} />
-            </div>
-            <div className="capture-controls" style={{ '--scale': SCALE }}>
-              <div className="capture-btn-row">
-                <button
-                  className="pixel-btn"
-                  onClick={() => setSessionStarted(true)}
-                  disabled={sessionStarted}
-                  style={{ opacity: sessionStarted ? 0.5 : 1 }}
-                >
-                  Start
-                </button>
-                {sessionStarted && currentIndex < photoCount && (
-                  <button className="pixel-btn" onClick={handleCapture}>
-                    Capture {currentIndex + 1} / {photoCount}
-                  </button>
-                )}
-                {sessionStarted && (
-                  <button
-                    className="pixel-btn"
-                    style={{ background: '#ffe6e6', color: '#b30000' }}
-                    onClick={handleReset}
-                  >
-                    Restart
-                  </button>
-                )}
-                {sessionStarted && photos.every((p) => p) && (
-                  <button
-                    className="pixel-btn"
-                    style={{ background: '#b3e6b3', color: '#145214' }}
-                    onClick={handleNext}
-                  >
-                    Next
-                  </button>
-                )}
-              </div>
-              <div className="preview-grid">
-                {previewGrid}
-              </div>
-            </div>
-          </>
-        )}
+        <div className="capture-content-row">
+          <div className="capture-left">
+            <div className="pixel-title capture-title">Camera Preview</div>
+            {permissionDenied ? (
+              <p className="text-red-500">Camera access denied. Please enable it in browser settings.</p>
+            ) : (
+              <>
+                <div className="pixel-border camera-preview" style={{ position: 'relative' }}>
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    className="camera-video flipped-video"
+                  />
+                  <canvas ref={canvasRef} className="canvas-hidden" />
+                </div>
+                <div className="capture-controls">
+                  <div className="capture-btn-row">
+                    <select
+                      className="pixel-btn"
+                      value={timer}
+                      onChange={(e) => setTimer(parseInt(e.target.value))}
+                      disabled={isCapturing}
+                    >
+                      <option value={0}>No Timer</option>
+                      <option value={3}>3 sec</option>
+                      <option value={5}>5 sec</option>
+                      <option value={10}>10 sec</option>
+                    </select>
+
+                    <button
+                      className="pixel-btn capture-fixed-width"
+                      onClick={handleCapture}
+                      disabled={isCapturing}
+                    >
+                      {photos[currentIndex]
+                        ? "Retake"
+                        : "Capture"}
+                    </button>
+
+                    <button className="pixel-btn" onClick={handleReset} disabled={isCapturing}>
+                      Reset
+                    </button>
+
+                    {photos.every((p) => p) && (
+                      <button className="pixel-btn pixel-btn-primary" onClick={handleNext}>
+                        Next
+                      </button>
+                    )}
+                  </div>
+                  {countdown !== null && (
+                    <div className="camera-countdown-below">
+                      Capturing in {countdown}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="capture-right">
+            {stripPreview}
+          </div>
+        </div>
       </div>
     </div>
   );

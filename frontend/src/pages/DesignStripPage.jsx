@@ -65,7 +65,11 @@ const DesignStripPage = () => {
               {Array.from({ length: tpl.rows * tpl.cols }).map((_, idx) => (
                 <div key={idx} className="design-strip-strip-frame-grid-item">
                   {photos[idx] ? (
-                    <img src={photos[idx]} alt={`photo-${idx + 1}`} className="design-photo-img" />
+                    <img 
+                      src={photos[idx]} 
+                      alt={`photo-${idx + 1}`} 
+                      className="design-photo-img"
+                    />
                   ) : (
                     <span className="design-strip-strip-frame-grid-item-placeholder">No Photo</span>
                   )}
