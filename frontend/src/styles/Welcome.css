@@ -1,82 +1,181 @@
+/* === Layout Containers === */
 .welcome-bg {
   min-height: 100vh;
   min-width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #b3e0ff 0%, #e0f7fa 100%);
+  background: linear-gradient(0deg, #5dc1e3 60%, #b3e0ff 100%);
+  position: relative;
+  overflow: hidden;
 }
 
+.welcome-scale-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* === Card Structure === */
 .welcome-card {
+  position: relative;
   background: #fff;
-  padding: 3.5em 4em 3em 4em;
-  min-width: 520px;
-  max-width: 900px;
-  width: 100%;
-  box-shadow: 8px 8px 0 #222;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 1.2em;
+  justify-content: flex-start;
+  gap: 18px;
+  z-index: 2;
+  font-family: 'Press Start 2P', monospace;
+  width: 600px;
+  max-width: 98vw;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 7px solid #212020;
+  box-shadow: 0 0 0 2px #2d2c2c, 10px 14px 0 0 #000000;
+  border-radius: 0;
+}
+
+.welcome-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 40px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(93,193,227,0.15) 100%);
+  opacity: 0.7;
+  filter: blur(1px);
+  z-index: 1;
 }
 
 .welcome-title {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.welcome-logo {
-  margin: 0 0.5em;
-}
-
-.welcome-btn-row {
-  display: flex;
-  gap: 2.5em;
-  margin-bottom: 1.5em;
-  justify-content: center;
-  align-items: center;
-}
-
-.welcome-deco-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7em;
-  font-size: 1.1em;
-  color: #333;
-  margin-top: 1.2em;
-  width: 100%;
-}
-
-.pixel-border {
-  border: 4px solid #333;
-  box-shadow: 4px 4px 0 #222;
-  border-radius: 0;
-}
-
-.pixel-btn {
-  background: #fffbe6;
-  color: #222;
-  border: 4px solid #333;
-  box-shadow: 4px 4px 0 #222;
-  border-radius: 0;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 1rem;
-  padding: 0.5em 1.5em;
-  cursor: pointer;
-  transition: background 0.1s;
-}
-.pixel-btn:hover {
-  background: #ffe066;
-}
-
-.pixel-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 1.5rem;
+  margin-top: 18px;
+  margin-bottom: 18px;
+  font-size: 2.5rem;
   color: #222;
   text-align: center;
   letter-spacing: 2px;
+  text-shadow: 3px 3px 0 #ffe066, 6px 6px 0 #222;
 }
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin: 0 0 18px 0;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.welcome-decoration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 1.1em;
+  color: #333;
+  margin: 5px 0 0 0;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+/* === Buttons === */
+.start-btn, .gallery-btn {
+  background: #fffbe6;
+  color: #222;
+  border: 4px solid #333;
+  border-radius: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  padding: 22px 10px;
+  width: 340px;
+  cursor: pointer;
+  transition: background 0.1s, box-shadow 0.1s;
+  letter-spacing: 1px;
+  margin: 0 auto;
+  min-width: 0;
+  max-width: 98%;
+  text-align: center;
+  white-space: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 0 0 3px #222, 4px 6px 0 0 #222;
+}
+
+.start-btn:hover, .gallery-btn:hover {
+  background: #ffe066;
+  box-shadow: 0 0 0 4px #222, 2px 3px 0 0 #222;
+}
+
+/* === Canopy Image === */
+.canopy-img {
+  width: 100%;
+  display: block;
+  margin-bottom: 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* === Camera Image === */
+.pixel-deco {
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+}
+
+.pixel-camera-light {
+  fill: #e63946;
+  animation: pixel-camera-blink 1s steps(1) infinite;
+}
+
+@keyframes pixel-camera-blink {
+  0%, 60%, 100% { opacity: 1; }
+  70%, 90% { opacity: 0; }
+}
+
+/* === Media Queries === */
+@media (max-width: 700px) {
+  .welcome-scale-wrapper {
+    transform: scale(calc(100vw / 600));
+    transform-origin: center;
+    overflow: visible;
+  }
+  .welcome-card {
+    width: 600px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .welcome-scale-wrapper {
+    transform: scale(calc(100vw / 500));
+    transform-origin: center;
+    overflow: visible;
+  }
+  .welcome-card {
+    width: 500px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .welcome-scale-wrapper {
+    transform: scale(calc(100vw / 400));
+    transform-origin: center;
+    overflow: visible;
+  }
+  .welcome-card {
+    width: 400px;
+    max-width: none;
+  }
+} 
