@@ -195,77 +195,79 @@ const CapturePage = () => {
       <div className="capture-scale-wrapper">
         <div className="capture-container">
           <h1 className="capture-title">take photos</h1>
-          <div className="capture-content-row">
-            <div className="capture-left">
-              {permissionDenied ? (
-                <p className="text-red-500">Camera access denied. Please enable it in browser settings.</p>
-              ) : (
-                <>
-                  <div className="camera-preview" style={{ position: 'relative' }}>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      className="camera-video flipped-video"
-                    />
-                    <canvas ref={canvasRef} className="canvas-hidden" />
-                    {countdown !== null && timer > 0 && (
-                      <div className="camera-timer-overlay">
-                        {countdown}
+          <div className="capture-scroll-x">
+            <div className="capture-content-row">
+              <div className="capture-left">
+                {permissionDenied ? (
+                  <p className="text-red-500">Camera access denied. Please enable it in browser settings.</p>
+                ) : (
+                  <>
+                    <div className="camera-preview" style={{ position: 'relative' }}>
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        className="camera-video flipped-video"
+                      />
+                      <canvas ref={canvasRef} className="canvas-hidden" />
+                      {countdown !== null && timer > 0 && (
+                        <div className="camera-timer-overlay">
+                          {countdown}
+                        </div>
+                      )}
+                    </div>
+                    <div className="capture-controls">
+                      <div className="capture-btn-row-group">
+                        <select
+                          className="pixel-btn capture-btn-row-item"
+                          value={timer}
+                          onChange={(e) => setTimer(parseInt(e.target.value))}
+                          disabled={isCapturing}
+                        >
+                          <option value={0}>no timer</option>
+                          <option value={3}>3 sec</option>
+                          <option value={5}>5 sec</option>
+                          <option value={10}>10 sec</option>
+                        </select>
+                        <button
+                          className="pixel-btn capture-fixed-width capture-btn-row-item"
+                          onClick={handleCapture}
+                          disabled={isCapturing}
+                        >
+                          {photos[currentIndex] ? "retake" : "capture"}
+                        </button>
+                        <button
+                          className="pixel-btn capture-fixed-width capture-btn-row-item"
+                          onClick={photos[currentIndex] ? handleClearPhoto : handleReset}
+                          disabled={isCapturing}
+                        >
+                          {photos[currentIndex] ? "clear" : "reset"}
+                        </button>
                       </div>
-                    )}
-                  </div>
-                  <div className="capture-controls">
-                    <div className="capture-btn-row-group">
-                      <select
-                        className="pixel-btn capture-btn-row-item"
-                        value={timer}
-                        onChange={(e) => setTimer(parseInt(e.target.value))}
-                        disabled={isCapturing}
-                      >
-                        <option value={0}>no timer</option>
-                        <option value={3}>3 sec</option>
-                        <option value={5}>5 sec</option>
-                        <option value={10}>10 sec</option>
-                      </select>
-                      <button
-                        className="pixel-btn capture-fixed-width capture-btn-row-item"
-                        onClick={handleCapture}
-                        disabled={isCapturing}
-                      >
-                        {photos[currentIndex] ? "retake" : "capture"}
-                      </button>
-                      <button
-                        className="pixel-btn capture-fixed-width capture-btn-row-item"
-                        onClick={photos[currentIndex] ? handleClearPhoto : handleReset}
-                        disabled={isCapturing}
-                      >
-                        {photos[currentIndex] ? "clear" : "reset"}
-                      </button>
+                      <div className="capture-btn-bottom-row">
+                        <button
+                          className="pixel-btn pixel-btn-restart capture-fixed-width"
+                          onClick={() => navigate(-1)}
+                          disabled={isCapturing}
+                        >
+                          back
+                        </button>
+                        <button
+                          className="pixel-btn pixel-btn-next capture-fixed-width"
+                          onClick={handleNext}
+                          disabled={!photos.every((p) => p)}
+                        >
+                          next
+                        </button>
+                      </div>
                     </div>
-                    <div className="capture-btn-bottom-row">
-                      <button
-                        className="pixel-btn pixel-btn-restart capture-fixed-width"
-                        onClick={() => navigate(-1)}
-                        disabled={isCapturing}
-                      >
-                        back
-                      </button>
-                      <button
-                        className="pixel-btn pixel-btn-next capture-fixed-width"
-                        onClick={handleNext}
-                        disabled={!photos.every((p) => p)}
-                      >
-                        next
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+                  </>
+                )}
+              </div>
 
-            <div className="capture-right">
-              {stripPreview}
+              <div className="capture-right">
+                {stripPreview}
+              </div>
             </div>
           </div>
         </div>
