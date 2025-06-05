@@ -1,78 +1,113 @@
-.strip-size-page {
+/* === CSS Custom Properties === */
+:root {
+  --strip-height: 260px;
+  --strip-gap: 6px;
+  --strip-footer-height: 12px;
+  --card-border: 7px solid #212020;
+  --card-shadow: 0 0 0 2px #2d2c2c, 10px 14px 0 0 #000000;
+  --template-border: 3px solid #222;
+  --template-shadow: 8px 8px 0 #222;
+  --selected-color: #e63946;
+}
+
+/* === Layout Containers === */
+.strip-size-bg {
   min-height: 100vh;
   min-width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(180deg, #b3e0ff 0%, #e0f7fa 100%);
+  position: relative;
   overflow: hidden;
 }
 
-.container {
+.strip-size-scale-wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* === Card Structure === */
+.strip-size-card {
+  position: relative;
+  background: #fff;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 1200px;
+  gap: 0.3rem;
+  z-index: 2;
+  font-family: 'Press Start 2P', monospace;
+  width: 800px;
+  max-width: 98vw;
+  margin: 0 auto;
+  overflow: hidden;
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: 0;
 }
 
-.pixel-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 1.5rem;
+.strip-size-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 40px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(93,193,227,0.15) 100%);
+  opacity: 0.7;
+  filter: blur(1px);
+  z-index: 1;
+}
+
+/* === Title === */
+.strip-size-title {
+  font-size: 2.5rem;
   color: #222;
   text-align: center;
   letter-spacing: 2px;
+  text-shadow: 3px 3px 0 #ffe066, 6px 6px 0 #222;
+  margin-top: 0px;
+  margin-bottom: 1.5rem;
 }
 
-.pixel-btn {
-  background: #fffbe6;
-  color: #222;
-  border: 4px solid #333;
-  box-shadow: 4px 4px 0 #222;
-  border-radius: 0;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 1rem;
-  padding: 0.5em 1.5em;
-  cursor: pointer;
-  transition: background 0.1s;
-}
-.pixel-btn:hover {
-  background: #ffe066;
-}
-
-.template-container {
+/* === Templates === */
+.strip-size-templates {
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   gap: 40px;
-  justify-content: center;
-  margin-bottom: 40px;
+  justify-content: flex-start;
+  overflow-x: auto;
+  max-width: 90vw;
+  padding-bottom: 1rem;
+  scrollbar-width: thin;
 }
 
-.template-item {
+.strip-size-template-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 0 0 auto;
 }
 
-.template-label {
-  margin-top: 8px;
-  margin-bottom: 8px;
-  font-size: 16px;
+.strip-size-template-label {
+  margin-top: 20px;
+  margin-bottom: 0px;
+  font-size: 1rem;
   color: #333;
-  font-family: inherit;
 }
 
-.selected {
-  border: 3px solid #e63946 !important;
-  box-shadow: 8px 8px 0 #e63946 !important;
-}
-
-.template-preview {
-  width: var(--strip-width);
-  height: var(--strip-height);
+/* === Template Preview === */
+.strip-template-preview {
   background: #fff;
   position: relative;
-  border: 3px solid var(--border-color, #222);
-  box-shadow: 8px 8px 0 var(--shadow-color, #222);
+  border: var(--template-border);
+  box-shadow: var(--template-shadow);
   border-radius: 4px;
   display: flex;
   flex-direction: column;
@@ -82,7 +117,54 @@
   padding: 0;
 }
 
-.grid-container {
+.strip-template-preview.selected {
+  border-color: var(--selected-color);
+  box-shadow: 8px 8px 0 var(--selected-color);
+}
+
+/* Template-specific dimensions */
+.strip-template-preview[data-template="3x1"] {
+  width: 100px;
+  height: var(--strip-height);
+  --photo-width: 80px;
+  --photo-height: 70px;
+  --grid-rows: 3;
+  --grid-cols: 1;
+}
+
+.strip-template-preview[data-template="3x2"] {
+  width: 160px;
+  height: var(--strip-height);
+  --photo-width: 68px;
+  --photo-height: 70px;
+  --grid-rows: 3;
+  --grid-cols: 2;
+}
+
+.strip-template-preview[data-template="4x1"] {
+  width: 100px;
+  height: var(--strip-height);
+  --photo-width: 80px;
+  --photo-height: 48px;
+  --grid-rows: 4;
+  --grid-cols: 1;
+}
+
+.strip-template-preview[data-template="4x2"] {
+  width: 160px;
+  height: var(--strip-height);
+  --photo-width: 68px;
+  --photo-height: 48px;
+  --grid-rows: 4;
+  --grid-cols: 2;
+}
+
+.strip-template-top {
+  height: var(--strip-gap);
+  width: 100%;
+}
+
+.strip-template-grid-container {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -90,16 +172,16 @@
   flex: none;
 }
 
-.grid {
+.strip-template-grid {
   display: grid;
   grid-template-rows: repeat(var(--grid-rows), 1fr);
   grid-template-columns: repeat(var(--grid-cols), 1fr);
-  gap: var(--grid-gap);
-  width: calc(var(--grid-cols) * var(--photo-width) + (var(--grid-cols) - 1) * var(--grid-gap));
-  height: calc(var(--grid-rows) * var(--photo-height) + (var(--grid-rows) - 1) * var(--grid-gap));
+  gap: var(--strip-gap);
+  width: calc(var(--grid-cols) * var(--photo-width) + (var(--grid-cols) - 1) * var(--strip-gap));
+  height: calc(var(--grid-rows) * var(--photo-height) + (var(--grid-rows) - 1) * var(--strip-gap));
 }
 
-.grid-item {
+.strip-template-grid-item {
   background: #e3e8ee;
   border: 2px solid #333;
   border-radius: 4px;
@@ -111,25 +193,41 @@
   overflow: hidden;
 }
 
-.grid-item svg {
+.strip-template-grid-item svg {
   display: block;
   margin: auto;
   width: 32px;
   height: 32px;
 }
 
-.top-margin {
-  height: var(--top-margin);
+.strip-template-footer {
   width: 100%;
-}
-
-.footer {
-  width: 100%;
-  height: var(--footer-height);
+  height: var(--strip-footer-height);
   background: #fff;
 }
 
-.photo-icon {
-  display: block;
-  margin: auto;
+/* === Actions === */
+.strip-size-actions {
+  display: flex;
+  gap: 4rem;
+  justify-content: center;
+  margin-top: 0px;
+}
+
+.strip-size-btn {
+  background: #fffbe6;
+  color: #222;
+  border: 4px solid #333;
+  box-shadow: 4px 4px 0 #222;
+  border-radius: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  padding: 0.5em 1.5em;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+}
+
+.strip-size-btn:hover {
+  background: #ffe066;
+  transform: scale(1.05);
 }
