@@ -60,53 +60,60 @@ const CapturePage = () => {
     if (!stripPreviewRef.current) return;
     const el = stripPreviewRef.current.style;
 
-    el.setProperty('--strip-width', `${tpl.width}px`);
-    el.setProperty('--strip-height', `${tpl.height}px`);
-    el.setProperty('--photo-width', `${tpl.photoW}px`);
-    el.setProperty('--photo-height', `${tpl.photoH}px`);
-    el.setProperty('--grid-gap', `${tpl.gap}px`);
+    const scale = 0.82;
+    el.setProperty('--strip-width', `${tpl.width * scale}px`);
+    el.setProperty('--strip-height', `${tpl.height * scale}px`);
+    el.setProperty('--photo-width', `${tpl.photoW * scale}px`);
+    el.setProperty('--photo-height', `${tpl.photoH * scale}px`);
+    el.setProperty('--grid-gap', `${tpl.gap * scale}px`);
     el.setProperty('--grid-rows', tpl.rows);
     el.setProperty('--grid-cols', tpl.cols);
-    el.setProperty('--footer-height', `${tpl.footer}px`);
-    el.setProperty('--top-margin', `${tpl.top}px`);
+    el.setProperty('--footer-height', `${tpl.footer * scale}px`);
+    el.setProperty('--top-margin', `${tpl.top * scale}px`);
     el.setProperty('--frame-color', '#fff');
   }, [tpl]);
 
   const doCapture = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (video && canvas) {
-      const inputWidth = video.videoWidth;
-      const inputHeight = video.videoHeight;
-      const targetAspect = 4 / 2.5;
-      let cropWidth = inputWidth;
-      let cropHeight = cropWidth / targetAspect;
+    if (!video || !canvas) return;
 
-      if (cropHeight > inputHeight) {
-        cropHeight = inputHeight;
-        cropWidth = cropHeight * targetAspect;
+    const inputWidth = video.videoWidth;
+    const inputHeight = video.videoHeight;
+    const targetAspect = 4 / 2.5;
+    let cropWidth = inputWidth;
+    let cropHeight = cropWidth / targetAspect;
+
+    if (cropHeight > inputHeight) {
+      cropHeight = inputHeight;
+      cropWidth = cropHeight * targetAspect;
+    }
+
+    const offsetX = (inputWidth - cropWidth) / 2;
+    const offsetY = (inputHeight - cropHeight) / 2;
+
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.save();
+    ctx.translate(cropWidth, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, offsetX, offsetY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+    ctx.restore();
+
+    const dataUrl = canvas.toDataURL("image/png");
+    setPhotos((prev) => {
+      const updated = [...prev];
+      updated[currentIndex] = dataUrl;
+      return updated;
+    });
+    if (!photos[currentIndex]) {
+      if (currentIndex < photoCount - 1) {
+        setCurrentIndex((prev) => prev + 1);
+      } else {
+        setCurrentIndex(-1);
       }
-
-      const offsetX = (inputWidth - cropWidth) / 2;
-      const offsetY = (inputHeight - cropHeight) / 2;
-
-      canvas.width = cropWidth;
-      canvas.height = cropHeight;
-
-      const ctx = canvas.getContext("2d");
-      ctx.save();
-      ctx.translate(cropWidth, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, offsetX, offsetY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
-      ctx.restore();
-
-      const dataUrl = canvas.toDataURL("image/png");
-      setPhotos((prev) => {
-        const updated = [...prev];
-        updated[currentIndex] = dataUrl;
-        return updated;
-      });
-      setCurrentIndex((prev) => prev + 1);
     }
   };
 
@@ -145,6 +152,16 @@ const CapturePage = () => {
     navigate("/design");
   };
 
+  const handleClearPhoto = () => {
+    if (currentIndex >= 0 && currentIndex < photoCount && photos[currentIndex]) {
+      setPhotos((prev) => {
+        const updated = [...prev];
+        updated[currentIndex] = null;
+        return updated;
+      });
+    }
+  };
+
   const stripPreview = (
     <div className="strip-preview" ref={stripPreviewRef}>
       <div className="strip-preview-grid-container">
@@ -152,15 +169,9 @@ const CapturePage = () => {
           {Array.from({ length: photoCount }).map((_, idx) => (
             <div
               key={idx}
-              className={[
-                "strip-preview-photo",
-                photos[idx] && "strip-preview-photo-hasimg",
-                idx === currentIndex ? "strip-preview-photo-active" : "",
-                "strip-preview-photo-clickable"
-              ].filter(Boolean).join(" ")}
+              className={`strip-preview-photo ${photos[idx] ? 'strip-preview-photo-hasimg' : ''} ${idx === currentIndex ? 'strip-preview-photo-active' : ''} strip-preview-photo-clickable`}
               onClick={() => setCurrentIndex(idx)}
               title={photos[idx] ? "Retake this photo" : "Take this photo"}
-              style={{ cursor: "pointer" }}
             >
               {photos[idx] ? (
                 <img
@@ -170,7 +181,7 @@ const CapturePage = () => {
                   key={photos[idx]}
                 />
               ) : (
-                <span className="strip-preview-photo-empty">No Photo</span>
+                <span className="strip-preview-photo-empty">no photo</span>
               )}
             </div>
           ))}
@@ -181,69 +192,81 @@ const CapturePage = () => {
 
   return (
     <div className="capture-bg">
-      <div className="capture-container">
-        <div className="capture-content-row">
-          <div className="capture-left">
-            <div className="pixel-title capture-title">Camera Preview</div>
-            {permissionDenied ? (
-              <p className="text-red-500">Camera access denied. Please enable it in browser settings.</p>
-            ) : (
-              <>
-                <div className="pixel-border camera-preview" style={{ position: 'relative' }}>
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    className="camera-video flipped-video"
-                  />
-                  <canvas ref={canvasRef} className="canvas-hidden" />
-                </div>
-                <div className="capture-controls">
-                  <div className="capture-btn-row">
-                    <select
-                      className="pixel-btn"
-                      value={timer}
-                      onChange={(e) => setTimer(parseInt(e.target.value))}
-                      disabled={isCapturing}
-                    >
-                      <option value={0}>No Timer</option>
-                      <option value={3}>3 sec</option>
-                      <option value={5}>5 sec</option>
-                      <option value={10}>10 sec</option>
-                    </select>
-
-                    <button
-                      className="pixel-btn capture-fixed-width"
-                      onClick={handleCapture}
-                      disabled={isCapturing}
-                    >
-                      {photos[currentIndex]
-                        ? "Retake"
-                        : "Capture"}
-                    </button>
-
-                    <button className="pixel-btn" onClick={handleReset} disabled={isCapturing}>
-                      Reset
-                    </button>
-
-                    {photos.every((p) => p) && (
-                      <button className="pixel-btn pixel-btn-primary" onClick={handleNext}>
-                        Next
-                      </button>
+      <div className="capture-scale-wrapper">
+        <div className="capture-container">
+          <h1 className="capture-title">take photos</h1>
+          <div className="capture-content-row">
+            <div className="capture-left">
+              {permissionDenied ? (
+                <p className="text-red-500">Camera access denied. Please enable it in browser settings.</p>
+              ) : (
+                <>
+                  <div className="camera-preview" style={{ position: 'relative' }}>
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      className="camera-video flipped-video"
+                    />
+                    <canvas ref={canvasRef} className="canvas-hidden" />
+                    {countdown !== null && timer > 0 && (
+                      <div className="camera-timer-overlay">
+                        {countdown}
+                      </div>
                     )}
                   </div>
-                  {countdown !== null && (
-                    <div className="camera-countdown-below">
-                      Capturing in {countdown}
+                  <div className="capture-controls">
+                    <div className="capture-btn-row-group">
+                      <select
+                        className="pixel-btn capture-btn-row-item"
+                        value={timer}
+                        onChange={(e) => setTimer(parseInt(e.target.value))}
+                        disabled={isCapturing}
+                      >
+                        <option value={0}>no timer</option>
+                        <option value={3}>3 sec</option>
+                        <option value={5}>5 sec</option>
+                        <option value={10}>10 sec</option>
+                      </select>
+                      <button
+                        className="pixel-btn capture-fixed-width capture-btn-row-item"
+                        onClick={handleCapture}
+                        disabled={isCapturing}
+                      >
+                        {photos[currentIndex] ? "retake" : "capture"}
+                      </button>
+                      <button
+                        className="pixel-btn capture-fixed-width capture-btn-row-item"
+                        onClick={photos[currentIndex] ? handleClearPhoto : handleReset}
+                        disabled={isCapturing}
+                      >
+                        {photos[currentIndex] ? "clear" : "reset"}
+                      </button>
                     </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+                    <div className="capture-btn-bottom-row">
+                      <button
+                        className="pixel-btn pixel-btn-restart capture-fixed-width"
+                        onClick={() => navigate(-1)}
+                        disabled={isCapturing}
+                      >
+                        back
+                      </button>
+                      <button
+                        className="pixel-btn pixel-btn-next capture-fixed-width"
+                        onClick={handleNext}
+                        disabled={!photos.every((p) => p)}
+                      >
+                        next
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
-          <div className="capture-right">
-            {stripPreview}
+            <div className="capture-right">
+              {stripPreview}
+            </div>
           </div>
         </div>
       </div>
