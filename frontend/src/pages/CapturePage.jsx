@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/Capture.css";
 
 const STRIP_SCALE = 0.93;
@@ -23,9 +23,37 @@ const CapturePage = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const stripPreviewRef = useRef(null);
+  const stripGridRef = useRef(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [photos, setPhotos] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const location = useLocation();
+
+  const tpl = getTemplate();
+  const photoCount = tpl.rows * tpl.cols;
+
+  function getInitialCurrentIndex(photoCount) {
+    const forcedIdx = localStorage.getItem('captureCurrentIndex');
+    if (forcedIdx !== null) {
+      localStorage.removeItem('captureCurrentIndex');
+      return Number(forcedIdx);
+    }
+    const saved = localStorage.getItem('capturedPhotos');
+    if (saved) {
+      try {
+        const arr = JSON.parse(saved);
+        if (Array.isArray(arr) && arr.length === photoCount) {
+          if ((location.state && location.state.fromDesign) || arr.every((p) => p)) {
+            return -1;
+          } else {
+            return 0;
+          }
+        }
+      } catch {}
+    }
+    return 0;
+  }
+
+  const [currentIndex, setCurrentIndex] = useState(() => getInitialCurrentIndex(photoCount));
   const [timer, setTimer] = useState(0);
   const [countdown, setCountdown] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -33,11 +61,11 @@ const CapturePage = () => {
   const [dragOverIdx, setDragOverIdx] = useState(null);
   const navigate = useNavigate();
 
-  const tpl = getTemplate();
-  const photoCount = tpl.rows * tpl.cols;
+  const userSelectedRef = useRef(false);
+
+  const lastClearedRef = useRef(null);
 
   useEffect(() => {
-    // Try to load from localStorage first
     const saved = localStorage.getItem("capturedPhotos");
     if (saved) {
       try {
@@ -71,7 +99,7 @@ const CapturePage = () => {
         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [photoCount]);
+  }, [photoCount, location.state]);
 
   useEffect(() => {
     if (!stripPreviewRef.current) return;
@@ -89,6 +117,17 @@ const CapturePage = () => {
     el.setProperty('--top-margin', `${tpl.top * scale}px`);
     el.setProperty('--frame-color', '#fff');
   }, [tpl]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!stripGridRef.current) return;
+      if (stripGridRef.current.contains(e.target)) return;
+      if (e.target.closest('button')) return;
+      setCurrentIndex(-1);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const doCapture = () => {
     const video = videoRef.current;
@@ -135,7 +174,7 @@ const CapturePage = () => {
   };
 
   const handleCapture = async () => {
-    if (isCapturing || currentIndex >= photoCount) return;
+    if (isCapturing || currentIndex === -1) return;
     setIsCapturing(true);
 
     if (timer > 0) {
@@ -149,11 +188,17 @@ const CapturePage = () => {
           setCountdown(null);
           doCapture();
           setIsCapturing(false);
+          userSelectedRef.current = false;
+          lastClearedRef.current = null;
+          setCurrentIndex(-1);
         }
       }, 1000);
     } else {
       doCapture();
       setIsCapturing(false);
+      userSelectedRef.current = false;
+      lastClearedRef.current = null;
+      setCurrentIndex(-1);
     }
   };
 
@@ -176,6 +221,9 @@ const CapturePage = () => {
         updated[currentIndex] = null;
         return updated;
       });
+      lastClearedRef.current = currentIndex;
+      userSelectedRef.current = false;
+      setCurrentIndex(-1);
     }
   };
 
@@ -200,15 +248,34 @@ const CapturePage = () => {
     setDragOverIdx(null);
   };
 
+  // Update the auto-highlight effect
+  useEffect(() => {
+    if (userSelectedRef.current) return;
+    const emptyIndexes = photos.map((p, i) => (!p ? i : null)).filter(i => i !== null);
+    if (emptyIndexes.length > 0) {
+      if (lastClearedRef.current !== null && emptyIndexes.includes(lastClearedRef.current)) {
+        setCurrentIndex(lastClearedRef.current);
+      } else {
+        setCurrentIndex(emptyIndexes[0]);
+      }
+    } else {
+      setCurrentIndex(-1);
+      lastClearedRef.current = null;
+    }
+  }, [photos]);
+
   const stripPreview = (
     <div className="strip-preview" ref={stripPreviewRef}>
       <div className="strip-preview-grid-container">
-        <div className="strip-preview-grid">
+        <div className="strip-preview-grid" ref={stripGridRef}>
           {Array.from({ length: photoCount }).map((_, idx) => (
             <div
               key={idx}
               className={`strip-preview-photo ${photos[idx] ? 'strip-preview-photo-hasimg' : ''} ${idx === currentIndex ? 'strip-preview-photo-active' : ''} strip-preview-photo-clickable${dragOverIdx === idx ? ' strip-preview-photo-dragover' : ''}`}
-              onClick={() => setCurrentIndex(idx)}
+              onClick={() => {
+                userSelectedRef.current = true;
+                setCurrentIndex(currentIndex === idx ? -1 : idx);
+              }}
               title={photos[idx] ? "Retake this photo" : "Take this photo"}
               draggable={!!photos[idx]}
               onDragStart={() => handleDragStart(idx)}
@@ -276,7 +343,7 @@ const CapturePage = () => {
                         <button
                           className="pixel-btn capture-fixed-width capture-btn-row-item"
                           onClick={handleCapture}
-                          disabled={isCapturing}
+                          disabled={isCapturing || currentIndex === -1}
                         >
                           {photos[currentIndex] ? "retake" : "capture"}
                         </button>

@@ -207,7 +207,8 @@ const DesignStripPage = () => {
   };
 
   const handleBack = () => {
-    navigate(-1);
+    localStorage.setItem('captureCurrentIndex', -1);
+    navigate('/capture', { state: { fromDesign: true } });
   };
 
   const handleDragStart = (idx) => setDraggedIdx(idx);
