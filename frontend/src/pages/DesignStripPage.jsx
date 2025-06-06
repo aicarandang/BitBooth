@@ -13,6 +13,21 @@ const bgThemes = [
   '#a3e635', '#38bdf8', '#f59e42', '#f43f5e', '#a855f7', '#ec4899',
 ];
 
+const FILTER_OPTIONS = [
+  { name: 'normal', label: 'Normal', css: '' },
+  { name: 'vintage', label: 'Vintage', css: 'sepia(0.5) contrast(1.1) brightness(0.9)' },
+  { name: 'grayscale', label: 'B&W', css: 'grayscale(1)' },
+  { name: 'warm', label: 'Warm', css: 'sepia(0.3) saturate(1.5) brightness(1.1)' },
+  { name: 'cool', label: 'Cool', css: 'hue-rotate(30deg) saturate(1.2)' },
+  { name: 'dramatic', label: 'Dramatic', css: 'contrast(1.4) brightness(0.9) saturate(1.2)' },
+  { name: 'fade', label: 'Fade', css: 'opacity(0.8) contrast(0.9) brightness(1.1)' },
+  { name: 'vibrant', label: 'Vibrant', css: 'saturate(1.5) contrast(1.2)' },
+  { name: 'invert', label: 'Invert', css: 'invert(1)' },
+  { name: 'softglow', label: 'Soft Glow', css: 'brightness(1.2) blur(1px)' },
+  { name: 'posterize', label: 'Posterize', css: 'contrast(2) saturate(0.7) grayscale(0.3)' },
+  { name: 'duotone', label: 'Duotone', css: 'grayscale(1) contrast(1.2) sepia(0.7) hue-rotate(250deg)' },
+];
+
 const STRIP_DIMENSIONS = {
   '3x1': { height: 670, width: 270, photoH: 180, photoW: 240, rows: 3, cols: 1, footer: 80, top: 30, gap: 12 },
   '3x2': { height: 670, width: 350, photoH: 180, photoW: 158.49, rows: 3, cols: 2, footer: 80, top: 30, gap: 12 },
@@ -48,6 +63,7 @@ const DesignStripPage = () => {
   const [photos, setPhotos] = useState([]);
   const [frameColor, setFrameColor] = useState('#fff');
   const [bgColor, setBgColor] = useState('#b3e0ff');
+  const [selectedFilter, setSelectedFilter] = useState('normal');
   const tpl = getTemplate();
   const stripPreviewRef = useRef(null);
   const cardRef = useRef(null);
@@ -107,11 +123,13 @@ const DesignStripPage = () => {
     const borderWidth = 4 * scale;
     const photoBorderWidth = 2 * scale;
     const photoRadius = 4 * scale;
+    
     // create canvas 
     const canvas = document.createElement('canvas');
     canvas.width = targetWidth;
     canvas.height = targetHeight;
     const ctx = canvas.getContext('2d');
+    
     // draw border
     ctx.save();
     ctx.fillStyle = frameColor;
@@ -120,17 +138,20 @@ const DesignStripPage = () => {
     ctx.strokeStyle = '#000';
     ctx.strokeRect(borderWidth/2, borderWidth/2, targetWidth - borderWidth, targetHeight - borderWidth);
     ctx.restore();
+    
     // draw grid of photos
     const gridW = tpl.cols * cellW + (tpl.cols - 1) * gap;
     const gridH = tpl.rows * cellH + (tpl.rows - 1) * gap;
     const gridX = (targetWidth - gridW) / 2;
     const gridY = topMargin + borderWidth;
+    
     for (let idx = 0; idx < tpl.rows * tpl.cols; idx++) {
       const imgSrc = photos[idx];
       const col = idx % tpl.cols;
       const row = Math.floor(idx / tpl.cols);
       const dx = gridX + col * (cellW + gap);
       const dy = gridY + row * (cellH + gap);
+      
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(dx + photoRadius, dy);
@@ -147,17 +168,20 @@ const DesignStripPage = () => {
       ctx.fillStyle = '#d0e3f0';
       ctx.fillRect(dx, dy, cellW, cellH);
       ctx.restore();
+      
       // draw photo 
       if (imgSrc) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.src = imgSrc;
         await new Promise((resolve) => { img.onload = resolve; });
+        
         const sw = img.naturalWidth;
         const sh = img.naturalHeight;
         const srcAspect = sw / sh;
         const tgtAspect = cellW / cellH;
         let sx = 0, sy = 0, sWidth = sw, sHeight = sh;
+        
         if (srcAspect > tgtAspect) {
           sWidth = sh * tgtAspect;
           sx = (sw - sWidth) / 2;
@@ -165,6 +189,7 @@ const DesignStripPage = () => {
           sHeight = sw / tgtAspect;
           sy = (sh - sHeight) / 2;
         }
+        
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(dx + photoRadius, dy);
@@ -178,9 +203,32 @@ const DesignStripPage = () => {
         ctx.quadraticCurveTo(dx, dy, dx + photoRadius, dy);
         ctx.closePath();
         ctx.clip();
-        ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, cellW, cellH);
+        
+        const filter = FILTER_OPTIONS.find(f => f.name === selectedFilter);
+        if (filter) {
+          const filterStyle = filter.css;
+          if (filterStyle) {
+            const filterCanvas = document.createElement('canvas');
+            filterCanvas.width = cellW;
+            filterCanvas.height = cellH;
+            const filterCtx = filterCanvas.getContext('2d');
+            
+            filterCtx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, cellW, cellH);
+            
+            filterCtx.filter = filterStyle;
+            filterCtx.drawImage(filterCanvas, 0, 0);
+            
+            ctx.drawImage(filterCanvas, dx, dy);
+          } else {
+            ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, cellW, cellH);
+          }
+        } else {
+          ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, cellW, cellH);
+        }
+        
         ctx.restore();
       }
+      
       // draw photo border
       ctx.save();
       ctx.beginPath();
@@ -199,6 +247,7 @@ const DesignStripPage = () => {
       ctx.stroke();
       ctx.restore();
     }
+    
     // download
     const link = document.createElement('a');
     link.download = 'photo-strip.png';
@@ -232,6 +281,10 @@ const DesignStripPage = () => {
     setDragOverIdx(null);
   };
 
+  const handleFilterSelect = (filterName) => {
+    setSelectedFilter(filterName);
+  };
+
   return (
     <div className="design-strip-page">
       <div className="design-scale-wrapper">
@@ -258,6 +311,7 @@ const DesignStripPage = () => {
                               src={photos[idx]}
                               alt={`photo-${idx + 1}`}
                               className="strip-preview-photo-img"
+                              style={{ filter: FILTER_OPTIONS.find(f => f.name === selectedFilter)?.css || '' }}
                             />
                           ) : (
                             <span className="strip-preview-photo-empty">no photo</span>
@@ -271,7 +325,19 @@ const DesignStripPage = () => {
               <div className="design-right">
                 <div className="design-color-pickers">
                   <div className="design-color-section">
-                    <div className="design-color-title">design strip</div>
+                    <div className="design-color-title">photo filters</div>
+                    <div className="design-filter-grid">
+                      {FILTER_OPTIONS.map((filter) => (
+                        <div
+                          key={filter.name}
+                          className={`design-filter-item${selectedFilter === filter.name ? ' selected' : ''}`}
+                          onClick={() => handleFilterSelect(filter.name)}
+                          title={filter.label}
+                        >
+                          <div className="filter-preview" style={{ filter: filter.css }} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div className="design-color-section">
                     <div className="design-color-title">frame color</div>

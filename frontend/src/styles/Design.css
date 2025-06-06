@@ -356,3 +356,49 @@
   outline-offset: -4px;
   z-index: 2;
 }
+
+/* === Filter Grid === */
+.design-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 36px);
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.design-filter-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  border: var(--button-border);
+  border-radius: 0;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  background: none;
+  box-shadow: var(--button-shadow);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+
+.design-filter-item:hover {
+  border-color: var(--button-hover-bg);
+  box-shadow: var(--button-shadow);
+}
+
+.design-filter-item.selected {
+  border-color: var(--selected-color) !important;
+  box-shadow: 0 0 0 3px var(--selected-color);
+}
+
+.filter-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  border: none;
+  box-sizing: border-box;
+}
