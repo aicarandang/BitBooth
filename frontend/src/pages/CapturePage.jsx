@@ -29,6 +29,8 @@ const CapturePage = () => {
   const [timer, setTimer] = useState(0);
   const [countdown, setCountdown] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [draggedIdx, setDraggedIdx] = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
   const navigate = useNavigate();
 
   const tpl = getTemplate();
@@ -177,6 +179,27 @@ const CapturePage = () => {
     }
   };
 
+  const handleDragStart = (idx) => setDraggedIdx(idx);
+  const handleDragOver = (idx, e) => {
+    e.preventDefault();
+    setDragOverIdx(idx);
+  };
+  const handleDragLeave = () => setDragOverIdx(null);
+  const handleDrop = (idx) => {
+    if (draggedIdx === null || draggedIdx === idx) return;
+    setPhotos((prev) => {
+      const updated = [...prev];
+      [updated[draggedIdx], updated[idx]] = [updated[idx], updated[draggedIdx]];
+      return updated;
+    });
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
+
   const stripPreview = (
     <div className="strip-preview" ref={stripPreviewRef}>
       <div className="strip-preview-grid-container">
@@ -184,9 +207,15 @@ const CapturePage = () => {
           {Array.from({ length: photoCount }).map((_, idx) => (
             <div
               key={idx}
-              className={`strip-preview-photo ${photos[idx] ? 'strip-preview-photo-hasimg' : ''} ${idx === currentIndex ? 'strip-preview-photo-active' : ''} strip-preview-photo-clickable`}
+              className={`strip-preview-photo ${photos[idx] ? 'strip-preview-photo-hasimg' : ''} ${idx === currentIndex ? 'strip-preview-photo-active' : ''} strip-preview-photo-clickable${dragOverIdx === idx ? ' strip-preview-photo-dragover' : ''}`}
               onClick={() => setCurrentIndex(idx)}
               title={photos[idx] ? "Retake this photo" : "Take this photo"}
+              draggable={!!photos[idx]}
+              onDragStart={() => handleDragStart(idx)}
+              onDragOver={(e) => handleDragOver(idx, e)}
+              onDragLeave={handleDragLeave}
+              onDrop={() => handleDrop(idx)}
+              onDragEnd={handleDragEnd}
             >
               {photos[idx] ? (
                 <img

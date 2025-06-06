@@ -364,6 +364,12 @@ select.pixel-btn:disabled {
   box-shadow: 0 0 0 3px var(--selected-color);
 }
 
+.strip-preview-photo-dragover {
+  outline: 3px dashed #e63946;
+  outline-offset: -4px;
+  z-index: 2;
+}
+
 /* === Timer Overlay === */
 .camera-timer-overlay {
   position: absolute;

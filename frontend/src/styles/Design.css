@@ -336,3 +336,9 @@
 .strip-preview-photo-hasimg {
   border-color: #000000;
 }
+
+.strip-preview-photo-dragover {
+  outline: 3px dashed #e63946;
+  outline-offset: -4px;
+  z-index: 2;
+}

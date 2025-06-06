@@ -51,6 +51,8 @@ const DesignStripPage = () => {
   const tpl = getTemplate();
   const stripPreviewRef = useRef(null);
   const cardRef = useRef(null);
+  const [draggedIdx, setDraggedIdx] = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
 
   useEffect(() => {
     setPhotos(getPhotos());
@@ -208,6 +210,27 @@ const DesignStripPage = () => {
     navigate(-1);
   };
 
+  const handleDragStart = (idx) => setDraggedIdx(idx);
+  const handleDragOver = (idx, e) => {
+    e.preventDefault();
+    setDragOverIdx(idx);
+  };
+  const handleDragLeave = () => setDragOverIdx(null);
+  const handleDrop = (idx) => {
+    if (draggedIdx === null || draggedIdx === idx) return;
+    setPhotos((prev) => {
+      const updated = [...prev];
+      [updated[draggedIdx], updated[idx]] = [updated[idx], updated[draggedIdx]];
+      return updated;
+    });
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
+
   return (
     <div className="design-strip-page">
       <div className="design-scale-wrapper">
@@ -219,7 +242,16 @@ const DesignStripPage = () => {
                   <div className="strip-preview-grid-container">
                     <div className="strip-preview-grid">
                       {Array.from({ length: tpl.rows * tpl.cols }).map((_, idx) => (
-                        <div key={idx} className={`strip-preview-photo${photos[idx] ? ' strip-preview-photo-hasimg' : ''}`}>
+                        <div
+                          key={idx}
+                          className={`strip-preview-photo${photos[idx] ? ' strip-preview-photo-hasimg' : ''}${dragOverIdx === idx ? ' strip-preview-photo-dragover' : ''}`}
+                          draggable={!!photos[idx]}
+                          onDragStart={() => handleDragStart(idx)}
+                          onDragOver={(e) => handleDragOver(idx, e)}
+                          onDragLeave={handleDragLeave}
+                          onDrop={() => handleDrop(idx)}
+                          onDragEnd={handleDragEnd}
+                        >
                           {photos[idx] ? (
                             <img
                               src={photos[idx]}
