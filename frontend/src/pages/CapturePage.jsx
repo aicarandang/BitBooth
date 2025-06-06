@@ -358,7 +358,7 @@ const CapturePage = () => {
                       <div className="capture-btn-bottom-row">
                         <button
                           className="pixel-btn pixel-btn-restart capture-fixed-width"
-                          onClick={() => navigate(-1)}
+                          onClick={() => navigate('/strip-size')}
                           disabled={isCapturing}
                         >
                           back

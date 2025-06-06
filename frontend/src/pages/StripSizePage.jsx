@@ -46,6 +46,7 @@ const StripSizePage = () => {
     localStorage.setItem("stripSize", selected);
     localStorage.setItem("stripRows", template.rows);
     localStorage.setItem("stripCols", template.cols);
+    localStorage.removeItem("capturedPhotos");
     navigate("/capture");
   };
 
@@ -70,7 +71,7 @@ const StripSizePage = () => {
             </div>
           </div>
           <div className="strip-size-actions">
-            <button className="strip-size-btn" onClick={() => navigate(-1)}>back</button>
+            <button className="strip-size-btn" onClick={() => navigate('/')}>back</button>
             <button className="strip-size-btn" onClick={handleNext}>next</button>
           </div>
         </div>

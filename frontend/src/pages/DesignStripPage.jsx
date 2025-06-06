@@ -274,7 +274,7 @@ const DesignStripPage = () => {
                     <div className="design-color-title">design strip</div>
                   </div>
                   <div className="design-color-section">
-                    <div className="design-color-title">Frame Color</div>
+                    <div className="design-color-title">frame color</div>
                     <div className="design-color-grid">
                       {frameColors.map((color, idx) => (
                         <div
@@ -287,7 +287,7 @@ const DesignStripPage = () => {
                     </div>
                   </div>
                   <div className="design-color-section">
-                    <div className="design-color-title">Background Theme</div>
+                    <div className="design-color-title">background theme</div>
                     <div className="design-color-grid">
                       {bgThemes.map((color, idx) => (
                         <div
@@ -301,10 +301,10 @@ const DesignStripPage = () => {
                   </div>
                   <div style={{ display: 'flex', gap: 16, marginTop: 32, alignSelf: 'center' }}>
                     <button className="pixel-btn" onClick={handleBack}>
-                      Back
+                      back
                     </button>
                     <button className="pixel-btn" onClick={handleSaveStrip}>
-                      Save
+                      save
                     </button>
                   </div>
                 </div>
