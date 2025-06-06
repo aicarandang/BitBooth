@@ -35,7 +35,22 @@ const CapturePage = () => {
   const photoCount = tpl.rows * tpl.cols;
 
   useEffect(() => {
-    setPhotos(Array(photoCount).fill(null));
+    // Try to load from localStorage first
+    const saved = localStorage.getItem("capturedPhotos");
+    if (saved) {
+      try {
+        const arr = JSON.parse(saved);
+        if (Array.isArray(arr) && arr.length === photoCount) {
+          setPhotos(arr);
+        } else {
+          setPhotos(Array(photoCount).fill(null));
+        }
+      } catch {
+        setPhotos(Array(photoCount).fill(null));
+      }
+    } else {
+      setPhotos(Array(photoCount).fill(null));
+    }
 
     const enableCamera = async () => {
       try {
