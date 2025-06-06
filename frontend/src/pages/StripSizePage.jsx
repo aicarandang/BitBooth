@@ -54,17 +54,20 @@ const StripSizePage = () => {
       <div className="strip-size-scale-wrapper">
         <div className="strip-size-card">
           <h1 className="strip-size-title">choose template</h1>
-          <div className="strip-size-templates">
-            {TEMPLATES.map((template) => (
-              <div key={template.key} className="strip-size-template-item">
-                <TemplatePreview
-                  template={template}
-                  selected={selected === template.key}
-                  onClick={() => setSelected(template.key)}
-                />
-                <div className="strip-size-template-label">{template.label}</div>
-              </div>
-            ))}
+          <div className="strip-scroll-x">
+            <div className="strip-size-templates">
+              {TEMPLATES.map((template) => (
+                <div key={template.key} className="strip-size-template-item">
+                  <TemplatePreview
+                    template={template}
+                    selected={selected === template.key}
+                    onClick={() => setSelected(template.key)}
+                  />
+                  <div className="strip-size-template-label">{template.label}</div>
+                </div>
+              ))}
+              <div className="scroll-spacer" />
+            </div>
           </div>
           <div className="strip-size-actions">
             <button className="strip-size-btn" onClick={() => navigate(-1)}>back</button>
