@@ -84,7 +84,7 @@
   align-items: center;
   justify-content: center;
   gap: 2.5rem;
-  min-width: fit-content;
+  width: 100%;
   height: 100%;
   box-sizing: border-box;
   padding: 0 2.5rem;
@@ -219,6 +219,7 @@
   align-items: flex-start;
   scroll-behavior: smooth;
   max-width: 100%;
+  width: 100%;
 }
 
 .design-scroll-x::-webkit-scrollbar {
@@ -236,6 +237,10 @@
   flex-shrink: 0;
 }
 
+.scroll-spacer {
+  display: none;
+}
+
 /* === Media Queries === */
 @media (max-width: 700px) {
   .design-scale-wrapper {
@@ -246,6 +251,15 @@
   .design-card {
     width: 600px;
     max-width: none;
+  }
+  .design-content-row {
+    justify-content: flex-start;
+  }
+  .scroll-spacer {
+    display: block;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 1px;
   }
 }
 

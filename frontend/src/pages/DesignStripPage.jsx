@@ -308,6 +308,7 @@ const DesignStripPage = () => {
                   </div>
                 </div>
               </div>
+              <div className="scroll-spacer" />
             </div>
           </div>
         </div>
