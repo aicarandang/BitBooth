@@ -1,7 +1,7 @@
 /* === CSS Custom Properties === */
 :root {
   --card-border: 7px solid #212020;
-  --card-shadow: 0 0 0 2px #2d2c2c, 10px 14px 0 0 #000000;
+  --card-shadow: 0 0 0 1.5px #2d2c2c, 5px 7px 0 0 #000000;
   --selected-color: #e63946;
   --button-border: 4px solid #333;
   --button-shadow: 4px 4px 0 #222;
@@ -42,8 +42,9 @@
   gap: 0.2rem;
   z-index: 2;
   font-family: 'Press Start 2P', monospace;
-  width: 1100px;
-  max-width: 90vw;
+  width: 1020px;
+  max-width: 98vw;
+  min-width: 0;
   max-height: 93vh;
   min-height: 650px;
   margin: 6vh auto;
@@ -78,19 +79,41 @@
 }
 
 /* === Content Layout === */
+.design-scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  scroll-behavior: smooth;
+  max-width: 100%;
+  width: 100%;
+}
+
+.design-scroll-x::-webkit-scrollbar {
+  height: 10px;
+  background: #eee;
+}
+
+.design-scroll-x::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 5px;
+}
+
 .design-content-row {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 2.5rem;
+  gap: 0.2rem;
   width: 100%;
-  height: 100%;
+  height: auto;
   box-sizing: border-box;
-  padding: 0 2.5rem;
+  padding: 0 0.5rem;
+  overflow: visible;
 }
 
-.design-left, .design-right {
+.design-left {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -98,6 +121,36 @@
   min-width: 0;
   width: auto;
   gap: 0.3rem;
+  padding-left: 50px;
+  padding-right: 30px;
+}
+
+.design-middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  height: auto;
+}
+
+.design-right-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding-left: 20px;
+  padding-right: 50px;
+  height: auto;
+}
+
+.design-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-end;
 }
 
 /* === Strip Frame === */
@@ -164,18 +217,18 @@
 
 /* === Color Pickers === */
 .design-color-pickers {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 48px;
-  margin-top: 24px;
+  justify-content: flex-start;
+  gap: 17px;
 }
 
 .design-color-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 7px;
 }
 
 .design-color-title {
@@ -185,6 +238,7 @@
   text-align: center;
   letter-spacing: 2px;
   text-shadow: 2px 2px 0 #ffe066, 4px 4px 0 #222;
+  margin-bottom: 2px;
 }
 
 .design-color-grid {
@@ -210,35 +264,351 @@
   border-color: var(--selected-color) !important;
 }
 
-/* === Horizontal Scroll for Card Content === */
-.design-scroll-x {
-  overflow-x: auto;
-  overflow-y: hidden;
+/* Custom color input */
+.design-color-item.custom-color {
+  position: relative;
+}
+
+.design-color-item input[type="color"] {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  cursor: pointer;
+}
+
+/* === Filter Grid === */
+.design-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 36px);
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.design-filter-item {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  scroll-behavior: smooth;
-  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  border: var(--button-border);
+  border-radius: 0;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  background: none;
+  box-shadow: var(--button-shadow);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+
+.design-filter-item:hover {
+  border-color: var(--button-hover-bg);
+  box-shadow: var(--button-shadow);
+}
+
+.design-filter-item.selected {
+  border-color: var(--selected-color) !important;
+  box-shadow: 0 0 0 3px var(--selected-color);
+}
+
+.filter-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  border: none;
+  box-sizing: border-box;
+}
+
+.filter-preview[data-filter] {
+  filter: var(--filter-css);
+}
+
+/* === Background Design Grid === */
+.design-bgdesign-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 36px);
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.design-bgdesign-item {
+  width: 36px;
+  height: 36px;
+  border: var(--button-border);
+  box-shadow: var(--button-shadow);
+  border-radius: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: inline-block;
+}
+
+.design-bgdesign-item.selected {
+  border-color: var(--selected-color) !important;
+  box-shadow: 0 0 0 3px var(--selected-color);
+}
+
+/* === Section Containers === */
+.design-section-container {
+  background: #f8f8fa;
+  border: 4px solid #212020;
+  border-radius: 10px;
+  padding: 18px 14px 14px 14px;
+  margin-bottom: 0px;
+  box-shadow: 0 0 0 1.5px #2d2c2c, 5px 7px 0 0 #000000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.design-section-container:last-child {
+  margin-bottom: 10px;
+}
+
+.design-section-container.sticker-card {
+  width: 260px;
+  max-width: none;
+  min-width: 0;
+  overflow: visible;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+.sticker-title {
+  word-break: break-word;
+  text-align: center;
+  width: 100%;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  justify-items: center;
   width: 100%;
 }
 
-.design-scroll-x::-webkit-scrollbar {
-  height: 10px;
-  background: #eee;
+.design-section-container.margin-top {
+  margin-top: 16px;
 }
 
-.design-scroll-x::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 5px;
+/* === Custom Sliders for Transform Card === */
+.design-slider {
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+.design-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: #222;
+  border-radius: 2px;
+}
+.design-slider::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #222;
+  background: #ffe066;
+  cursor: pointer;
+  margin-top: -7px;
+  box-shadow: 1px 1px 0 #222;
+  transition: background 0.2s;
+}
+.design-slider.design-slider-r::-webkit-slider-thumb {
+  background: #a855f7;
+}
+/* Firefox */
+.design-slider::-moz-range-track {
+  height: 4px;
+  background: #222;
+  border-radius: 2px;
+}
+.design-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #222;
+  background: #ffe066;
+  cursor: pointer;
+  box-shadow: 1px 1px 0 #222;
+  transition: background 0.2s;
+}
+.design-slider.design-slider-r::-moz-range-thumb {
+  background: #a855f7;
+}
+/* Edge/IE */
+.design-slider::-ms-fill-lower,
+.design-slider::-ms-fill-upper {
+  background: #222;
+  border-radius: 2px;
+}
+.design-slider::-ms-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #222;
+  background: #ffe066;
+  cursor: pointer;
+  box-shadow: 1px 1px 0 #222;
+  transition: background 0.2s;
+}
+.design-slider.design-slider-r::-ms-thumb {
+  background: #a855f7;
+}
+.design-slider:focus {
+  outline: none;
 }
 
-.design-left,
-.design-right {
-  flex-shrink: 0;
+/* === Transform Card === */
+.pixel-slider-card {
+  margin: 18px 0 0 0;
+  width: 260px;
+  background: #f8f8fa;
+  border: 4px solid #212020;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1.5px #2d2c2c, 5px 7px 0 0 #000000;
+  padding: 18px 14px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.scroll-spacer {
-  display: none;
+.transform-btn-group {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.transform-btn {
+  font-size: 15px;
+  text-transform: lowercase;
+  padding: 5px 14px;
+  min-width: 0;
+  min-height: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.transform-btn.delete {
+  background: #ffe6e6;
+  color: #b30000;
+}
+
+/* Disabled state for transform card */
+.pixel-slider-card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Slider row for transform card */
+.transform-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.transform-slider-row + .transform-slider-row {
+  margin-top: 8px;
+}
+
+/* Sticker grid item */
+.sticker-grid-item {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #222;
+}
+
+.sticker-grid-item img {
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+}
+
+/* Sticker overlay for strip preview */
+.sticker-overlay {
+  border: 2.5px solid transparent;
+  border-radius: 6px;
+  transition: box-shadow 0.1s, border 0.1s;
+}
+.sticker-overlay.active {
+  border: 2.5px solid #e63946;
+}
+
+/* Sticker card margin */
+.sticker-card {
+  margin-top: 18px;
+}
+
+/* Right-side button group */
+.design-right-btn-group {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+/* Sticker grid 4 columns */
+.sticker-grid.four-cols {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Transform slider label */
+.transform-slider-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: #222;
+  width: 22px;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Custom color swatch icon */
+.color-swatch-icon {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  font-size: 18px;
+  color: #222;
+  pointer-events: none;
+}
+
+/* Sticker image in strip preview */
+.sticker-img {
+  width: 48px;
+  height: 48px;
+  display: block;
+  pointer-events: none;
+  image-rendering: pixelated;
 }
 
 /* === Media Queries === */
@@ -357,48 +727,30 @@
   z-index: 2;
 }
 
-/* === Filter Grid === */
-.design-filter-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 36px);
-  gap: 8px;
-  justify-content: center;
+/* Background design preview */
+.bg-design-preview {
   width: 100%;
-  max-width: 400px;
-}
-
-.design-filter-item {
+  height: 100%;
+  background: #fff;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  border: var(--button-border);
-  border-radius: 0;
-  box-sizing: border-box;
-  width: 36px;
-  height: 36px;
-  background: none;
-  box-shadow: var(--button-shadow);
-  transition: border-color 0.15s, box-shadow 0.15s;
-  position: relative;
 }
 
-.design-filter-item:hover {
-  border-color: var(--button-hover-bg);
-  box-shadow: var(--button-shadow);
+.bg-design-preview svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.design-filter-item.selected {
-  border-color: var(--selected-color) !important;
-  box-shadow: 0 0 0 3px var(--selected-color);
-}
-
-.filter-preview {
+.bg-design-preview-placeholder {
   width: 100%;
   height: 100%;
-  border-radius: 0;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-  border: none;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 24px;
 }

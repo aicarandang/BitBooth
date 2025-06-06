@@ -23,11 +23,11 @@ const WelcomePage = () => {
             </button>
           </div>
           <div className="welcome-decoration">
-            <img src={starImg} alt="star" style={{ width: 28, height: 28 }} />
+            <img src={starImg} alt="star" />
             {[...Array(5)].map((_, index) => (
               <PixelCamera key={index} size={44} />
             ))}
-            <img src={heartImg} alt="heart" style={{ width: 28, height: 28 }} />
+            <img src={heartImg} alt="heart" />
           </div>
         </div>
       </div>

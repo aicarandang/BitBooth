@@ -143,6 +143,12 @@
   70%, 90% { opacity: 0; }
 }
 
+/* === Decoration Images === */
+.welcome-decoration img {
+  width: 28px;
+  height: 28px;
+}
+
 /* === Media Queries === */
 @media (max-width: 700px) {
   .welcome-scale-wrapper {
