@@ -65,6 +65,8 @@ const CapturePage = () => {
 
   const lastClearedRef = useRef(null);
 
+  const streamRef = useRef(null);
+
   useEffect(() => {
     const saved = localStorage.getItem("capturedPhotos");
     if (saved) {
@@ -85,6 +87,7 @@ const CapturePage = () => {
     const enableCamera = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -95,8 +98,12 @@ const CapturePage = () => {
     enableCamera();
 
     return () => {
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
       }
     };
   }, [photoCount, location.state]);
