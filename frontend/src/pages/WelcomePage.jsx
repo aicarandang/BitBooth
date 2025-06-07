@@ -12,7 +12,6 @@ const WelcomePage = () => {
     <div className="welcome-bg">
       <div className="welcome-scale-wrapper">
         <div className="welcome-card">
-          <img src={canopyImg} alt="canopy" className="canopy-img" />
           <h1 className="welcome-title">welcome!</h1>
           <div className="welcome-actions">
             <button className="start-btn" onClick={() => navigate("/strip-size")}>

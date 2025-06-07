@@ -3,6 +3,7 @@ import WelcomePage from "./pages/WelcomePage";
 import StripSizePage from "./pages/StripSizePage";
 import CapturePage from "./pages/CapturePage";
 import DesignStripPage from "./pages/DesignStripPage";
+import GalleryPage from "./pages/GalleryPage";
 import { useEffect } from "react";
 
 function CameraCleanup() {
@@ -29,6 +30,7 @@ function App() {
         <Route path="/strip-size" element={<StripSizePage />} />
         <Route path="/capture" element={<CapturePage />} />
         <Route path="/design" element={<DesignStripPage />} />
+        <Route path="/gallery" element={<GalleryPage />} />
       </Routes>
     </Router>
   );
