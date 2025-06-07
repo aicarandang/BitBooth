@@ -18,6 +18,11 @@ import Sticker13Img from '../assets/images/Sticker13.png';
 import Sticker14Img from '../assets/images/Sticker14.png';
 import Sticker15Img from '../assets/images/Sticker15.png';
 import Sticker16Img from '../assets/images/Sticker16.png';
+import Sticker17Img from '../assets/images/Sticker17.png';
+import Sticker18Img from '../assets/images/Sticker18.png';
+import Sticker19Img from '../assets/images/Sticker19.png';
+import Sticker20Img from '../assets/images/Sticker20.png';
+import FilterImg from '../assets/images/Filter.jpg';
 
 const frameColors = [
   '#000000', // Black
@@ -74,14 +79,160 @@ const BG_DESIGNS = [
       </div>
     )
   },
-  ...Array.from({ length: 11 }).map((_, i) => ({
-    name: `placeholder-${i+1}`,
-    label: 'Coming Soon',
-    style: { background: '#e0e0e0' },
+  // 1. Checkerboard
+  {
+    name: 'checkerboard',
+    label: 'Checkerboard',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='8' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='4' height='4' fill='%23a3e635'/><rect x='4' y='4' width='4' height='4' fill='%23a3e635'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
     renderPreview: () => (
-      <div className="bg-design-preview-placeholder">?</div>
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='8' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='4' height='4' fill='%23a3e635'/><rect x='4' y='4' width='4' height='4' fill='%23a3e635'/></svg>")`
+      }} />
     )
-  })),
+  },
+  // 2. Diagonal Stripes
+  {
+    name: 'diagonal-stripes',
+    label: 'Diagonal Stripes',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='8' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='8' height='8' fill='white'/><rect x='0' y='0' width='4' height='8' fill='%23f59e42' transform='rotate(45 4 4)'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='8' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='8' height='8' fill='white'/><rect x='0' y='0' width='4' height='8' fill='%23f59e42' transform='rotate(45 4 4)'/></svg>")`
+      }} />
+    )
+  },
+  // 3. Pixel Dots
+  {
+    name: 'pixel-dots',
+    label: 'Pixel Dots',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='8' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='8' height='8' fill='white'/><rect x='2' y='2' width='2' height='2' fill='%23256ceb'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='8' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='8' height='8' fill='white'/><rect x='2' y='2' width='2' height='2' fill='%23256ceb'/></svg>")`
+      }} />
+    )
+  },
+  // 4. Pixel Hearts
+  {
+    name: 'pixel-hearts',
+    label: 'Pixel Hearts',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='10' height='10' xmlns='http://www.w3.org/2000/svg'><rect width='10' height='10' fill='white'/><path d='M2 3h1v1h1v1h1v-1h1v-1h1v1h-1v1h-1v1h-1v-1h-1v-1z' fill='%23e63946'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='10' height='10' xmlns='http://www.w3.org/2000/svg'><rect width='10' height='10' fill='white'/><path d='M2 3h1v1h1v1h1v-1h1v-1h1v1h-1v1h-1v1h-1v-1h-1v-1z' fill='%23e63946'/></svg>")`
+      }} />
+    )
+  },
+  // 5. Pixel Stars
+  {
+    name: 'pixel-stars',
+    label: 'Pixel Stars',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='10' height='10' xmlns='http://www.w3.org/2000/svg'><rect width='10' height='10' fill='white'/><rect x='4' y='0' width='2' height='2' fill='%23ffe066'/><rect x='0' y='4' width='2' height='2' fill='%23ffe066'/><rect x='8' y='4' width='2' height='2' fill='%23ffe066'/><rect x='4' y='8' width='2' height='2' fill='%23ffe066'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='10' height='10' xmlns='http://www.w3.org/2000/svg'><rect width='10' height='10' fill='white'/><rect x='4' y='0' width='2' height='2' fill='%23ffe066'/><rect x='0' y='4' width='2' height='2' fill='%23ffe066'/><rect x='8' y='4' width='2' height='2' fill='%23ffe066'/><rect x='4' y='8' width='2' height='2' fill='%23ffe066'/></svg>")`
+      }} />
+    )
+  },
+  // 6. Brick Wall
+  {
+    name: 'brick-wall',
+    label: 'Brick Wall',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='12' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='12' height='8' fill='white'/><rect x='0' y='0' width='6' height='4' fill='%23a0522d'/><rect x='6' y='0' width='6' height='4' fill='%23a0522d'/><rect x='3' y='4' width='6' height='4' fill='%23a0522d'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='12' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='12' height='8' fill='white'/><rect x='0' y='0' width='6' height='4' fill='%23a0522d'/><rect x='6' y='0' width='6' height='4' fill='%23a0522d'/><rect x='3' y='4' width='6' height='4' fill='%23a0522d'/></svg>")`
+      }} />
+    )
+  },
+  // 7. Pixel Waves
+  {
+    name: 'pixel-waves',
+    label: 'Pixel Waves',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='12' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='12' height='8' fill='white'/><rect x='0' y='4' width='2' height='2' fill='%234ecdc4'/><rect x='2' y='2' width='2' height='2' fill='%234ecdc4'/><rect x='4' y='0' width='2' height='2' fill='%234ecdc4'/><rect x='6' y='2' width='2' height='2' fill='%234ecdc4'/><rect x='8' y='4' width='2' height='2' fill='%234ecdc4'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='12' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='12' height='8' fill='white'/><rect x='0' y='4' width='2' height='2' fill='%234ecdc4'/><rect x='2' y='2' width='2' height='2' fill='%234ecdc4'/><rect x='4' y='0' width='2' height='2' fill='%234ecdc4'/><rect x='6' y='2' width='2' height='2' fill='%234ecdc4'/><rect x='8' y='4' width='2' height='2' fill='%234ecdc4'/></svg>")`
+      }} />
+    )
+  },
+  // 8. Diamond Grid
+  {
+    name: 'diamond-grid',
+    label: 'Diamond Grid',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='10' height='10' xmlns='http://www.w3.org/2000/svg'><rect width='10' height='10' fill='white'/><rect x='4' y='0' width='2' height='2' fill='%23a855f7'/><rect x='2' y='2' width='2' height='2' fill='%23a855f7'/><rect x='6' y='2' width='2' height='2' fill='%23a855f7'/><rect x='0' y='4' width='2' height='2' fill='%23a855f7'/><rect x='8' y='4' width='2' height='2' fill='%23a855f7'/><rect x='2' y='6' width='2' height='2' fill='%23a855f7'/><rect x='6' y='6' width='2' height='2' fill='%23a855f7'/><rect x='4' y='8' width='2' height='2' fill='%23a855f7'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='10' height='10' xmlns='http://www.w3.org/2000/svg'><rect width='10' height='10' fill='white'/><rect x='4' y='0' width='2' height='2' fill='%23a855f7'/><rect x='2' y='2' width='2' height='2' fill='%23a855f7'/><rect x='6' y='2' width='2' height='2' fill='%23a855f7'/><rect x='0' y='4' width='2' height='2' fill='%23a855f7'/><rect x='8' y='4' width='2' height='2' fill='%23a855f7'/><rect x='2' y='6' width='2' height='2' fill='%23a855f7'/><rect x='6' y='6' width='2' height='2' fill='%23a855f7'/><rect x='4' y='8' width='2' height='2' fill='%23a855f7'/></svg>")`
+      }} />
+    )
+  },
+  // 9. Pixel Zigzag
+  {
+    name: 'pixel-zigzag',
+    label: 'Pixel Zigzag',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='12' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='12' height='8' fill='white'/><rect x='0' y='4' width='2' height='2' fill='%23f43f5e'/><rect x='2' y='2' width='2' height='2' fill='%23f43f5e'/><rect x='4' y='0' width='2' height='2' fill='%23f43f5e'/><rect x='6' y='2' width='2' height='2' fill='%23f43f5e'/><rect x='8' y='4' width='2' height='2' fill='%23f43f5e'/><rect x='10' y='6' width='2' height='2' fill='%23f43f5e'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='12' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='12' height='8' fill='white'/><rect x='0' y='4' width='2' height='2' fill='%23f43f5e'/><rect x='2' y='2' width='2' height='2' fill='%23f43f5e'/><rect x='4' y='0' width='2' height='2' fill='%23f43f5e'/><rect x='6' y='2' width='2' height='2' fill='%23f43f5e'/><rect x='8' y='4' width='2' height='2' fill='%23f43f5e'/><rect x='10' y='6' width='2' height='2' fill='%23f43f5e'/></svg>")`
+      }} />
+    )
+  },
+  // 10. Pixel Crosses
+  {
+    name: 'pixel-crosses',
+    label: 'Pixel Crosses',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='10' height='10' xmlns='http://www.w3.org/2000/svg'><rect width='10' height='10' fill='white'/><rect x='4' y='0' width='2' height='2' fill='%2322c55e'/><rect x='0' y='4' width='2' height='2' fill='%2322c55e'/><rect x='8' y='4' width='2' height='2' fill='%2322c55e'/><rect x='4' y='8' width='2' height='2' fill='%2322c55e'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='10' height='10' xmlns='http://www.w3.org/2000/svg'><rect width='10' height='10' fill='white'/><rect x='4' y='0' width='2' height='2' fill='%2322c55e'/><rect x='0' y='4' width='2' height='2' fill='%2322c55e'/><rect x='8' y='4' width='2' height='2' fill='%2322c55e'/><rect x='4' y='8' width='2' height='2' fill='%2322c55e'/></svg>")`
+      }} />
+    )
+  },
+  // 11. Pixel Grid
+  {
+    name: 'pixel-grid',
+    label: 'Pixel Grid',
+    style: {
+      backgroundImage: `url("data:image/svg+xml;utf8,<svg width='8' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='8' height='8' fill='white'/><rect x='0' y='0' width='2' height='8' fill='%23f472b6'/><rect x='0' y='0' width='8' height='2' fill='%23f472b6'/></svg>")`,
+      backgroundRepeat: 'repeat'
+    },
+    renderPreview: () => (
+      <div className="bg-design-preview" style={{
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg width='8' height='8' xmlns='http://www.w3.org/2000/svg'><rect width='8' height='8' fill='white'/><rect x='0' y='0' width='2' height='8' fill='%23f472b6'/><rect x='0' y='0' width='8' height='2' fill='%23f472b6'/></svg>")`
+      }} />
+    )
+  },
 ];
 
 const STICKER_GRID = [
@@ -108,6 +259,12 @@ const STICKER_GRID = [
     { name: 'sticker14', src: Sticker14Img },
     { name: 'sticker15', src: Sticker15Img },
     { name: 'sticker16', src: Sticker16Img },
+  ],
+  [
+    { name: 'sticker17', src: Sticker17Img },
+    { name: 'sticker18', src: Sticker18Img },
+    { name: 'sticker19', src: Sticker19Img },
+    { name: 'sticker20', src: Sticker20Img },
   ],
 ];
 
@@ -292,10 +449,39 @@ const DesignStripPage = () => {
     canvas.height = targetHeight;
     const ctx = canvas.getContext('2d');
     
-    // Draw border
+    // Draw background (pattern or color)
+    if (selectedBgDesign !== 'no-theme') {
+      const design = BG_DESIGNS.find(d => d.name === selectedBgDesign);
+      if (design && design.style && design.style.backgroundImage) {
+        // Extract SVG data from backgroundImage
+        const match = design.style.backgroundImage.match(/url\("data:image\/svg\+xml;utf8,(.*?)"\)/);
+        if (match) {
+          const svg = decodeURIComponent(match[1]);
+          // Create image for pattern
+          const img = new window.Image();
+          const svgBase64 = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+          await new Promise(resolve => {
+            img.onload = resolve;
+            img.src = svgBase64;
+          });
+          // Tile pattern
+          const pattern = ctx.createPattern(img, 'repeat');
+          ctx.save();
+          ctx.fillStyle = pattern;
+          ctx.fillRect(0, 0, targetWidth, targetHeight);
+          ctx.restore();
+        }
+      }
+    } else {
+      // Draw solid color
     ctx.save();
     ctx.fillStyle = frameColor;
     ctx.fillRect(0, 0, targetWidth, targetHeight);
+      ctx.restore();
+    }
+    
+    // Draw border
+    ctx.save();
     ctx.lineWidth = borderWidth;
     ctx.strokeStyle = '#000';
     ctx.strokeRect(borderWidth/2, borderWidth/2, targetWidth - borderWidth, targetHeight - borderWidth);
@@ -503,6 +689,10 @@ const DesignStripPage = () => {
     return () => document.removeEventListener('mousedown', handleDeselect);
   }, []);
 
+  const stripPreviewStyle = selectedBgDesign === 'no-theme'
+    ? { '--frame-color': frameColor }
+    : (BG_DESIGNS.find(d => d.name === selectedBgDesign)?.style || {});
+
   return (
     <div className="design-strip-page">
       <div className="design-scale-wrapper">
@@ -520,17 +710,34 @@ const DesignStripPage = () => {
                             key={filter.name}
                             className={`design-filter-item${selectedFilter === filter.name ? ' selected' : ''}`}
                             onClick={() => handleFilterSelect(filter.name)}
-                            title={filter.label}
                           >
-                            <div 
-                              className={`filter-preview filter-${filter.name}`}
-                              data-filter={filter.name}
-                            >
-                              {idx === 0 && (
+                            <div className="filter-preview" style={{
+                              background: 'none',
+                              padding: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              {idx === 0 ? (
+                                <>
+                                  <div style={{ width: 28, height: 28, background: '#fff', borderRadius: 4 }} />
                                 <svg className="no-theme-x" width="18" height="18" viewBox="0 0 18 18">
                                   <line x1="3" y1="3" x2="15" y2="15" stroke="#e63946" strokeWidth="2.5" strokeLinecap="round" />
                                   <line x1="15" y1="3" x2="3" y2="15" stroke="#e63946" strokeWidth="2.5" strokeLinecap="round" />
                                 </svg>
+                                </>
+                              ) : (
+                                <img
+                                  src={FilterImg}
+                                  alt={filter.label}
+                                  style={{
+                                    width: 28,
+                                    height: 28,
+                                    objectFit: 'cover',
+                                    borderRadius: 4,
+                                    filter: filter.css || 'none'
+                                  }}
+                                />
                               )}
                             </div>
                           </div>
@@ -545,8 +752,10 @@ const DesignStripPage = () => {
                         <div
                           className={`design-color-item${frameColor === '#fff' ? ' selected' : ''}`}
                           style={{ background: '#fff' }}
-                          onClick={() => setFrameColor('#fff')}
-                          title="White"
+                          onClick={() => {
+                            setFrameColor('#fff');
+                            setSelectedBgDesign('no-theme');
+                          }}
                         >
                           <svg className="no-theme-x" width="18" height="18" viewBox="0 0 18 18">
                             <line x1="3" y1="3" x2="15" y2="15" stroke="#e63946" strokeWidth="2.5" strokeLinecap="round" />
@@ -558,14 +767,19 @@ const DesignStripPage = () => {
                             key={idx}
                             className={`design-color-item${frameColor === color ? ' selected' : ''}`}
                             style={{ background: color }}
-                            onClick={() => setFrameColor(color)}
+                            onClick={() => {
+                              setFrameColor(color);
+                              setSelectedBgDesign('no-theme');
+                            }}
                           />
                         ))}
                         <div
                           className={`design-color-item custom-color${frameColor === customFrameColor ? ' selected' : ''}`}
                           style={{ background: customFrameColor }}
-                          onClick={() => colorInputRef.current && colorInputRef.current.click()}
-                          title="Custom Color"
+                          onClick={() => {
+                            if (colorInputRef.current) colorInputRef.current.click();
+                            setSelectedBgDesign('no-theme');
+                          }}
                         >
                           <span className="color-swatch-icon">🎨</span>
                           <input
@@ -588,8 +802,12 @@ const DesignStripPage = () => {
                             key={design.name}
                             className={`design-bgdesign-item${selectedBgDesign === design.name ? ' selected' : ''}`}
                             data-bg={design.style?.background}
-                            onClick={() => setSelectedBgDesign(design.name)}
-                            title={design.label}
+                            onClick={() => {
+                              setSelectedBgDesign(design.name);
+                              if (design.name !== 'no-theme') {
+                                setFrameColor('#fff');
+                              }
+                            }}
                           >
                             {design.renderPreview ? design.renderPreview() : null}
                           </div>
@@ -603,7 +821,7 @@ const DesignStripPage = () => {
                 <div
                   className="strip-preview"
                   ref={stripPreviewRef}
-                  style={selectedBgDesign === 'no-theme' ? { '--frame-color': frameColor } : {}}
+                  style={stripPreviewStyle}
                 >
                   {stripReady ? (
                     <>
@@ -726,7 +944,6 @@ const DesignStripPage = () => {
                         ));
                         setActiveStickerId(null);
                       }}
-                      title="Apply"
                     >
                       apply
                     </button>
@@ -737,7 +954,6 @@ const DesignStripPage = () => {
                         setStickers(prev => prev.filter(sticker => sticker.id !== activeStickerId));
                         setActiveStickerId(null);
                       }}
-                      title="Delete"
                     >
                       delete
                     </button>
@@ -751,7 +967,6 @@ const DesignStripPage = () => {
                         key={sticker.name}
                         className="sticker-grid-item"
                         onClick={() => handleAddSticker(sticker.src)}
-                        title={sticker.name}
                       >
                         <img src={sticker.src} alt={sticker.name} />
                       </div>

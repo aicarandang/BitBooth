@@ -874,3 +874,18 @@
   justify-content: center;
   width: 100%;
 }
+
+.design-color-item:hover {
+  border-color: var(--button-hover-bg);
+  box-shadow: var(--button-shadow);
+}
+
+.design-bgdesign-item:hover {
+  border-color: var(--button-hover-bg);
+  box-shadow: var(--button-shadow);
+}
+
+.sticker-grid-item:hover {
+  border-color: var(--button-hover-bg);
+  box-shadow: var(--button-shadow);
+}

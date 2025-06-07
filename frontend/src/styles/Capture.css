@@ -75,6 +75,7 @@
   letter-spacing: 2px;
   text-shadow: 2px 2px 0 #ffe066, 4px 4px 0 #222;
   margin: 0 0 0.5rem 0;
+  padding-top: 10px;
 }
 
 /* === Content Layout === */
@@ -88,6 +89,8 @@
   height: 100%;
   box-sizing: border-box;
   padding: 0 2.5rem;
+  justify-content: center;
+  height: 100%;
 }
 
 .capture-left {
@@ -96,6 +99,9 @@
   gap: 0.3rem;
   min-width: 0;
   width: auto;
+  margin-top: 16px;
+  justify-content: center;
+  height: 100%;
 }
 
 .capture-right {
