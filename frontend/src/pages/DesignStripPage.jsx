@@ -134,46 +134,6 @@ const CARD_PADDING_TOP = 1.2 * 16;
 const CARD_PADDING_BOTTOM = 2.1 * 16; 
 const STRIP_MARGIN = 8; 
 
-function shadeColor(hex, percent) {
-  let R = parseInt(hex.substring(1,3),16);
-  let G = parseInt(hex.substring(3,5),16);
-  let B = parseInt(hex.substring(5,7),16);
-  R = Math.min(255, Math.max(0, R + Math.round(255 * percent)));
-  G = Math.min(255, Math.max(0, G + Math.round(255 * percent)));
-  B = Math.min(255, Math.max(0, B + Math.round(255 * percent)));
-  return `#${R.toString(16).padStart(2,'0')}${G.toString(16).padStart(2,'0')}${B.toString(16).padStart(2,'0')}`;
-}
-
-function lighten(hex, percent) {
-  let R = parseInt(hex.substring(1,3),16);
-  let G = parseInt(hex.substring(3,5),16);
-  let B = parseInt(hex.substring(5,7),16);
-  R = Math.min(255, Math.round(R + (255 - R) * percent));
-  G = Math.min(255, Math.round(G + (255 - G) * percent));
-  B = Math.min(255, Math.round(B + (255 - B) * percent));
-  return `#${R.toString(16).padStart(2,'0')}${G.toString(16).padStart(2,'0')}${B.toString(16).padStart(2,'0')}`;
-}
-
-function getPatternDataUrl(patternName, color) {
-  if (patternName === 'none') return '';
-  const patternColor = shadeColor(color, 0.25);
-  let svg = '';
-  if (patternName === 'hearts') {
-    svg = `<svg width='16' height='16' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M8 10c0-2 2-3 4-2 1-1 3-1 4 1 1-2 3-2 4-1 2-1 4 0 4 2 0 3-4 6-8 10-4-4-8-7-8-10z' fill='${patternColor}'/><circle cx='8' cy='24' r='2' fill='${patternColor}'/><circle cx='24' cy='24' r='2' fill='${patternColor}'/></svg>`;
-  } else if (patternName === 'camera') {
-    svg = `<svg width='16' height='16' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><rect x='6' y='12' width='20' height='10' rx='2' fill='${patternColor}'/><circle cx='16' cy='17' r='3' fill='#fff'/></svg>`;
-  } else if (patternName === 'cloud') {
-    svg = `<svg width='16' height='16' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><ellipse cx='16' cy='20' rx='10' ry='6' fill='${patternColor}'/><ellipse cx='10' cy='18' rx='4' ry='3' fill='${patternColor}'/><ellipse cx='22' cy='18' rx='4' ry='3' fill='${patternColor}'/></svg>`;
-  } else if (patternName === 'fish') {
-    svg = `<svg width='16' height='16' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><ellipse cx='18' cy='16' rx='8' ry='4' fill='${patternColor}'/><polygon points='10,16 4,12 4,20' fill='${patternColor}'/></svg>`;
-  } else if (patternName === 'crab') {
-    svg = `<svg width='16' height='16' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><ellipse cx='16' cy='20' rx='8' ry='4' fill='${patternColor}'/><circle cx='10' cy='16' r='2' fill='${patternColor}'/><circle cx='22' cy='16' r='2' fill='${patternColor}'/></svg>`;
-  } else if (patternName === 'shell') {
-    svg = `<svg width='16' height='16' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M16 28c-6-6-8-12-8-16 0-4 4-8 8-8s8 4 8 8c0 4-2 10-8 16z' fill='${patternColor}'/></svg>`;
-  }
-  return `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
-}
-
 const DesignStripPage = () => {
   const navigate = useNavigate();
   const [photos, setPhotos] = useState([]);
@@ -244,19 +204,45 @@ const DesignStripPage = () => {
       setStickers(prev => prev.map(sticker => {
         if (sticker.id !== dragState.current.stickerId) return sticker;
         const { orig } = dragState.current;
-        const centerX = orig.x + 24 * orig.scale;
-        const centerY = orig.y + 24 * orig.scale;
+        // Center-based logic
         if (dragState.current.action === 'move') {
           const dx = e.clientX - dragState.current.startX;
           const dy = e.clientY - dragState.current.startY;
-          return { ...sticker, x: orig.x + dx, y: orig.y + dy };
+          // Get strip boundaries
+          const stripEl = stripPreviewRef.current;
+          if (!stripEl) return sticker;
+          const stripRect = stripEl.getBoundingClientRect();
+          const stickerSize = 48 * orig.scale; 
+          const halfSize = stickerSize / 2;
+          // Calculate new center position
+          let newX = orig.x + dx;
+          let newY = orig.y + dy;
+          // Constrain center so the whole sticker stays inside
+          newX = Math.max(halfSize, Math.min(newX, stripRect.width - halfSize));
+          newY = Math.max(halfSize, Math.min(newY, stripRect.height - halfSize));
+          return { ...sticker, x: newX, y: newY };
         } else if (dragState.current.action === 'resize') {
+          const centerX = orig.x;
+          const centerY = orig.y;
           const startDist = Math.hypot(dragState.current.startX - centerX, dragState.current.startY - centerY);
           const currDist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
           let scale = orig.scale * (currDist / Math.max(30, startDist));
           scale = Math.max(0.3, Math.min(3, scale));
+          // Keep sticker inside bounds
+          const stripEl = stripPreviewRef.current;
+          if (stripEl) {
+            const stripRect = stripEl.getBoundingClientRect();
+            const halfSize = (48 * scale) / 2;
+            let newX = orig.x;
+            let newY = orig.y;
+            newX = Math.max(halfSize, Math.min(newX, stripRect.width - halfSize));
+            newY = Math.max(halfSize, Math.min(newY, stripRect.height - halfSize));
+            return { ...sticker, scale, x: newX, y: newY };
+          }
           return { ...sticker, scale };
         } else if (dragState.current.action === 'rotate') {
+          const centerX = orig.x;
+          const centerY = orig.y;
           const angle0 = Math.atan2(dragState.current.startY - centerY, dragState.current.startX - centerX);
           const angle1 = Math.atan2(e.clientY - centerY, e.clientX - centerX);
           let deg = orig.rotation + (angle1 - angle0) * 180 / Math.PI;
@@ -291,6 +277,15 @@ const DesignStripPage = () => {
     const photoBorderWidth = 2 * scale;
     const photoRadius = 4 * scale;
     
+    // Get preview strip's actual pixel size
+    let previewWidth = tpl.width;
+    let previewHeight = tpl.height;
+    if (stripPreviewRef.current) {
+      const previewRect = stripPreviewRef.current.getBoundingClientRect();
+      previewWidth = previewRect.width;
+      previewHeight = previewRect.height;
+    }
+    
     // Create canvas 
     const canvas = document.createElement('canvas');
     canvas.width = targetWidth;
@@ -319,6 +314,7 @@ const DesignStripPage = () => {
       const dx = gridX + col * (cellW + gap);
       const dy = gridY + row * (cellH + gap);
       
+      // Draw photo background and border
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(dx + photoRadius, dy);
@@ -334,9 +330,8 @@ const DesignStripPage = () => {
       ctx.clip();
       ctx.fillStyle = '#d0e3f0';
       ctx.fillRect(dx, dy, cellW, cellH);
-      ctx.restore();
       
-      // Draw photo 
+      // Draw photo if exists
       if (imgSrc) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
@@ -357,44 +352,23 @@ const DesignStripPage = () => {
           sy = (sh - sHeight) / 2;
         }
         
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(dx + photoRadius, dy);
-        ctx.lineTo(dx + cellW - photoRadius, dy);
-        ctx.quadraticCurveTo(dx + cellW, dy, dx + cellW, dy + photoRadius);
-        ctx.lineTo(dx + cellW, dy + cellH - photoRadius);
-        ctx.quadraticCurveTo(dx + cellW, dy + cellH, dx + cellW - photoRadius, dy + cellH);
-        ctx.lineTo(dx + photoRadius, dy + cellH);
-        ctx.quadraticCurveTo(dx, dy + cellH, dx, dy + cellH - photoRadius);
-        ctx.lineTo(dx, dy + photoRadius);
-        ctx.quadraticCurveTo(dx, dy, dx + photoRadius, dy);
-        ctx.closePath();
-        ctx.clip();
-        
         const filter = FILTER_OPTIONS.find(f => f.name === selectedFilter);
-        if (filter) {
-          const filterStyle = filter.css;
-          if (filterStyle) {
-            const filterCanvas = document.createElement('canvas');
-            filterCanvas.width = cellW;
-            filterCanvas.height = cellH;
-            const filterCtx = filterCanvas.getContext('2d');
-            
-            filterCtx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, cellW, cellH);
-            
-            filterCtx.filter = filterStyle;
-            filterCtx.drawImage(filterCanvas, 0, 0);
-            
-            ctx.drawImage(filterCanvas, dx, dy);
-          } else {
-            ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, cellW, cellH);
-          }
+        if (filter && filter.css) {
+          const filterCanvas = document.createElement('canvas');
+          filterCanvas.width = cellW;
+          filterCanvas.height = cellH;
+          const filterCtx = filterCanvas.getContext('2d');
+          
+          filterCtx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, cellW, cellH);
+          filterCtx.filter = filter.css;
+          filterCtx.drawImage(filterCanvas, 0, 0);
+          
+          ctx.drawImage(filterCanvas, dx, dy);
         } else {
-        ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, cellW, cellH);
+          ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, cellW, cellH);
         }
-        
-        ctx.restore();
       }
+      ctx.restore();
       
       // Draw photo border
       ctx.save();
@@ -412,6 +386,22 @@ const DesignStripPage = () => {
       ctx.lineWidth = photoBorderWidth;
       ctx.strokeStyle = '#333';
       ctx.stroke();
+      ctx.restore();
+    }
+    
+    // Draw applied stickers
+    for (const sticker of stickers.filter(s => s.applied)) {
+      const stickerImg = new Image();
+      stickerImg.src = sticker.src;
+      await new Promise((resolve) => { stickerImg.onload = resolve; });
+      // Center-based scaling
+      const stickerCenterX = (sticker.x / previewWidth) * targetWidth;
+      const stickerCenterY = (sticker.y / previewHeight) * targetHeight;
+      const stickerSize = (48 * sticker.scale / previewWidth) * targetWidth;
+      ctx.save();
+      ctx.translate(stickerCenterX, stickerCenterY);
+      ctx.rotate(sticker.rotation * Math.PI / 180);
+      ctx.drawImage(stickerImg, -stickerSize/2, -stickerSize/2, stickerSize, stickerSize);
       ctx.restore();
     }
     
@@ -454,21 +444,31 @@ const DesignStripPage = () => {
 
   // Add sticker to strip
   const handleAddSticker = (src) => {
+    const newStickerId = stickerIdRef.current;
+    let centerX = 100;
+    let centerY = 100;
+    if (stripPreviewRef.current) {
+      const stripRect = stripPreviewRef.current.getBoundingClientRect();
+      centerX = stripRect.width / 2;
+      centerY = stripRect.height / 2;
+    }
     setStickers((prev) => [
       ...prev,
       {
-        id: stickerIdRef.current++,
+        id: newStickerId,
         src,
-        x: 100,
-        y: 100,
+        x: centerX,
+        y: centerY,
         scale: 1,
         rotation: 0,
         applied: false,
       },
     ]);
+    setActiveStickerId(newStickerId);
+    stickerIdRef.current++;
   };
 
-  // When active sticker changes, update sliders
+  // Update sliders when active sticker changes
   useEffect(() => {
     const sticker = stickers.find(s => s.id === activeStickerId);
     if (sticker) {
@@ -511,11 +511,11 @@ const DesignStripPage = () => {
             <div className="design-content-row">
               <div className="design-left">
                 <div className="design-color-pickers">
-                  <div className="design-section-container margin-top">
+                  <div className="design-section-filter">
                     <div className="design-color-section">
                       <div className="design-color-title">filter</div>
                       <div className="design-filter-grid">
-                        {FILTER_OPTIONS.map((filter) => (
+                        {FILTER_OPTIONS.map((filter, idx) => (
                           <div
                             key={filter.name}
                             className={`design-filter-item${selectedFilter === filter.name ? ' selected' : ''}`}
@@ -523,16 +523,22 @@ const DesignStripPage = () => {
                             title={filter.label}
                           >
                             <div 
-                              className="filter-preview" 
+                              className={`filter-preview filter-${filter.name}`}
                               data-filter={filter.name}
-                              style={{ '--filter-css': filter.css }}
-                            />
+                            >
+                              {idx === 0 && (
+                                <svg className="no-theme-x" width="18" height="18" viewBox="0 0 18 18">
+                                  <line x1="3" y1="3" x2="15" y2="15" stroke="#e63946" strokeWidth="2.5" strokeLinecap="round" />
+                                  <line x1="15" y1="3" x2="3" y2="15" stroke="#e63946" strokeWidth="2.5" strokeLinecap="round" />
+                                </svg>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <div className="design-section-container">
+                  <div className="design-section-color">
                     <div className="design-color-section">
                       <div className="design-color-title">color</div>
                       <div className="design-color-grid">
@@ -541,7 +547,12 @@ const DesignStripPage = () => {
                           style={{ background: '#fff' }}
                           onClick={() => setFrameColor('#fff')}
                           title="White"
-                        />
+                        >
+                          <svg className="no-theme-x" width="18" height="18" viewBox="0 0 18 18">
+                            <line x1="3" y1="3" x2="15" y2="15" stroke="#e63946" strokeWidth="2.5" strokeLinecap="round" />
+                            <line x1="15" y1="3" x2="3" y2="15" stroke="#e63946" strokeWidth="2.5" strokeLinecap="round" />
+                          </svg>
+                        </div>
                         {frameColors.slice(0, -1).map((color, idx) => (
                           <div
                             key={idx}
@@ -568,7 +579,7 @@ const DesignStripPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="design-section-container">
+                  <div className="design-section-design">
                     <div className="design-color-section">
                       <div className="design-color-title">design</div>
                       <div className="design-bgdesign-grid">
@@ -576,7 +587,7 @@ const DesignStripPage = () => {
                           <div
                             key={design.name}
                             className={`design-bgdesign-item${selectedBgDesign === design.name ? ' selected' : ''}`}
-                            style={design.previewStyle || design.style}
+                            data-bg={design.style?.background}
                             onClick={() => setSelectedBgDesign(design.name)}
                             title={design.label}
                           >
@@ -592,32 +603,28 @@ const DesignStripPage = () => {
                 <div
                   className="strip-preview"
                   ref={stripPreviewRef}
-                  style={
-                    selectedBgDesign === 'no-theme'
-                      ? { background: frameColor }
-                      : BG_DESIGNS.find(d => d.name === selectedBgDesign)?.style
-                  }
+                  style={selectedBgDesign === 'no-theme' ? { '--frame-color': frameColor } : {}}
                 >
                   {stripReady ? (
                     <>
                       {/* Stickers overlay */}
-                      <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
+                      <div className="sticker-overlay-container">
                         {stickers.map(sticker => {
                           const isActive = activeStickerId === sticker.id;
+                          const stickerSize = 48 * sticker.scale;
                           return (
                             <div
                               key={sticker.id}
                               data-sticker
                               className={`sticker-overlay${isActive ? ' active' : ''}`}
                               style={{
-                                position: 'absolute',
-                                left: sticker.x,
-                                top: sticker.y,
-                                transform: `scale(${sticker.scale}) rotate(${sticker.rotation}deg)`,
-                                cursor: !sticker.applied && isActive ? 'move' : 'default',
+                                left: sticker.x - stickerSize / 2,
+                                top: sticker.y - stickerSize / 2,
+                                width: stickerSize,
+                                height: stickerSize,
+                                transform: `rotate(${sticker.rotation}deg)` ,
                                 zIndex: isActive ? 11 : 10,
-                                pointerEvents: 'auto',
-                                userSelect: 'none',
+                                cursor: !sticker.applied && isActive ? 'move' : 'default',
                               }}
                               onMouseDown={e => {
                                 e.stopPropagation();
@@ -638,46 +645,50 @@ const DesignStripPage = () => {
                                 alt="sticker"
                                 className="sticker-img"
                                 draggable={false}
+                                style={{ width: '100%', height: '100%' }}
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setActiveStickerId(sticker.id);
+                                }}
                               />
                             </div>
                           );
                         })}
                       </div>
-                      <div className="strip-preview-grid-container">
-                        <div className="strip-preview-grid">
-                          {Array.from({ length: tpl.rows * tpl.cols }).map((_, idx) => (
-                            <div
-                              key={idx}
-                              className={`strip-preview-photo${photos[idx] ? ' strip-preview-photo-hasimg' : ''}${dragOverIdx === idx ? ' strip-preview-photo-dragover' : ''}`}
-                              draggable={!!photos[idx]}
-                              onDragStart={() => handleDragStart(idx)}
-                              onDragOver={(e) => handleDragOver(idx, e)}
-                              onDragLeave={handleDragLeave}
-                              onDrop={() => handleDrop(idx)}
-                              onDragEnd={handleDragEnd}
-                            >
-                              {photos[idx] ? (
-                                <img
-                                  src={photos[idx]}
-                                  alt={`photo-${idx + 1}`}
-                                  className="strip-preview-photo-img"
-                                  style={{ filter: FILTER_OPTIONS.find(f => f.name === selectedFilter)?.css || '' }}
-                                />
-                              ) : (
-                                <span className="strip-preview-photo-empty">no photo</span>
-                              )}
-                            </div>
-                          ))}
+                  <div className="strip-preview-grid-container">
+                    <div className="strip-preview-grid">
+                      {Array.from({ length: tpl.rows * tpl.cols }).map((_, idx) => (
+                        <div
+                          key={idx}
+                          className={`strip-preview-photo${photos[idx] ? ' strip-preview-photo-hasimg' : ''}${dragOverIdx === idx ? ' strip-preview-photo-dragover' : ''}`}
+                          draggable={!!photos[idx]}
+                          onDragStart={() => handleDragStart(idx)}
+                          onDragOver={(e) => handleDragOver(idx, e)}
+                          onDragLeave={handleDragLeave}
+                          onDrop={() => handleDrop(idx)}
+                          onDragEnd={handleDragEnd}
+                        >
+                          {photos[idx] ? (
+                            <img
+                              src={photos[idx]}
+                              alt={`photo-${idx + 1}`}
+                                  className={`strip-preview-photo-img filter-${selectedFilter}`}
+                            />
+                          ) : (
+                            <span className="strip-preview-photo-empty">no photo</span>
+                          )}
                         </div>
-                      </div>
+                      ))}
+                    </div>
+                  </div>
                     </>
                   ) : (
-                    <div style={{height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}}>Loading...</div>
+                    <div className="strip-loading">Loading...</div>
                   )}
                 </div>
               </div>
               <div className="design-right-side">
-                <div className={`design-section-container pixel-slider-card${stickers.length === 0 ? ' disabled' : ''}`}>
+                <div className={`design-section-container pixel-slider-card margin-top${stickers.length === 0 ? ' disabled' : ''}`}>
                   <div className="design-color-title">transform</div>
                   <div className="transform-slider-row">
                     <span className="transform-slider-label">S</span>
@@ -688,11 +699,11 @@ const DesignStripPage = () => {
                       step={0.01}
                       value={sliderScale}
                       onChange={e => handleSliderChange('scale', parseFloat(e.target.value))}
-                      disabled={!activeStickerId || stickers.find(s => s.id === activeStickerId)?.applied}
+                      disabled={activeStickerId === null || stickers.find(s => s.id === activeStickerId)?.applied}
                       className="design-slider design-slider-s"
                     />
                   </div>
-                  <div className="transform-slider-row" style={{ marginBottom: 2 }}>
+                  <div className="transform-slider-row">
                     <span className="transform-slider-label">R</span>
                     <input
                       type="range"
@@ -701,14 +712,14 @@ const DesignStripPage = () => {
                       step={1}
                       value={sliderRotate}
                       onChange={e => handleSliderChange('rotate', parseFloat(e.target.value))}
-                      disabled={!activeStickerId || stickers.find(s => s.id === activeStickerId)?.applied}
+                      disabled={activeStickerId === null || stickers.find(s => s.id === activeStickerId)?.applied}
                       className="design-slider design-slider-r"
                     />
-                  </div>
+                    </div>
                   <div className="transform-btn-group">
                     <button
                       className="pixel-btn transform-btn"
-                      disabled={!activeStickerId || stickers.find(s => s.id === activeStickerId)?.applied}
+                      disabled={activeStickerId === null || stickers.find(s => s.id === activeStickerId)?.applied}
                       onClick={() => {
                         setStickers(prev => prev.map(sticker =>
                           sticker.id === activeStickerId ? { ...sticker, applied: true } : sticker
@@ -721,7 +732,7 @@ const DesignStripPage = () => {
                     </button>
                     <button
                       className="pixel-btn transform-btn delete"
-                      disabled={!activeStickerId}
+                      disabled={activeStickerId === null}
                       onClick={() => {
                         setStickers(prev => prev.filter(sticker => sticker.id !== activeStickerId));
                         setActiveStickerId(null);
@@ -732,30 +743,30 @@ const DesignStripPage = () => {
                     </button>
                   </div>
                 </div>
-                <div className="design-section-container sticker-card">
+                <div className="design-section-stickers">
                   <div className="design-color-title">stickers</div>
                   <div className="sticker-grid four-cols">
                     {STICKER_GRID.flat().map((sticker, idx) => (
-                      <div
+                        <div
                         key={sticker.name}
                         className="sticker-grid-item"
                         onClick={() => handleAddSticker(sticker.src)}
                         title={sticker.name}
                       >
-                        <img src={sticker.src} alt={sticker.name} style={{ width: 28, height: 28, pointerEvents: 'none' }} />
+                        <img src={sticker.src} alt={sticker.name} />
                       </div>
-                    ))}
+                      ))}
+                    </div>
+                  </div>
+                <div className="design-right-btn-group">
+                    <button className="pixel-btn" onClick={handleBack}>
+                      back
+                    </button>
+                    <button className="pixel-btn" onClick={handleSaveStrip}>
+                      save
+                    </button>
                   </div>
                 </div>
-                <div className="design-right-btn-group">
-                  <button className="pixel-btn" onClick={handleBack}>
-                    back
-                  </button>
-                  <button className="pixel-btn" onClick={handleSaveStrip}>
-                    save
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
